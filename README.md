@@ -5,7 +5,7 @@ Responsive court booking app for a two-court pickleball facility. The web app us
 ## Local setup
 
 1. Create a Supabase project.
-2. In the Supabase SQL Editor, run the migration files in filename order. If migrations through court pricing are already applied, also run [`202611150002_rename_courts.sql`](supabase/migrations/202611150002_rename_courts.sql) to rename the saved courts. For a fresh database, run every file in `supabase/migrations` in order. If PostgREST reports a function missing after migration, run `NOTIFY pgrst, 'reload schema';` in the SQL Editor, then retry.
+2. In the Supabase SQL Editor, run the migration files in filename order. For an existing database, apply each migration that has not yet been run, in order. The latest migration, [`202611150004_admin_court_pricing.sql`](supabase/migrations/202611150004_admin_court_pricing.sql), enables admin pricing controls. For a fresh database, run every file in `supabase/migrations` in order. If PostgREST reports a function missing after migration, run `NOTIFY pgrst, 'reload schema';` in the SQL Editor, then retry.
 3. Copy `.env.example` to `.env` and set the project URL and public anon key:
 
    ```env
@@ -31,7 +31,7 @@ Responsive court booking app for a two-court pickleball facility. The web app us
 
 ## Booking and payment policy
 
-- Courts are open daily from 6:00 AM to 10:00 PM, Manila time. Court 1 has a rubberized floor at ₱250/hour; Court 2 has a silica floor at ₱350/hour. Bookings use whole-hour durations, and the database enforces each court's price.
+- Courts are open daily from 6:00 AM to 10:00 PM, Manila time. Default rates are ₱250/hour for the rubberized Court 1 and ₱350/hour for the silica Court 2. Administrators can update both rates from the admin dashboard; the database enforces the current rates for new bookings.
 - Customers can book without signing in. Before placing the hold, they enter their name, email, and phone number. **Reserve this time** places a 10-minute hold; the customer uploads proof and presses **Book now** to submit it. Submitted bookings appear as **Waiting for confirmation** until an admin reviews the payment.
 - After an admin approves and verifies payment, the app sends a confirmation email to the customer. Email delivery requires the deployed Edge Function and configured Resend secrets above.
 - Customers can cancel at least 12 hours before a booking. Refunds are handled manually by the administrator and are not initiated automatically.
