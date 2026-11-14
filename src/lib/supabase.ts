@@ -7,7 +7,9 @@ export const supabase = url && key ? createClient(url, key) : null
 export type Booking = {
   id: string; reference: string; user_id: string; court_id: number; booking_date: string
   start_hour: number; duration_hours: number; total_price: number; status: string
-  payment_status: string; created_at: string; hold_expires_at?: string | null; profiles?: { full_name: string; email: string }
+  payment_status: string; created_at: string; hold_expires_at?: string | null
+  customer_name?: string | null; customer_email?: string | null; customer_phone?: string | null
+  profiles?: { full_name: string; email: string } | null
   payments?: { status: string; rejection_reason: string | null; submitted_at: string }[]
 }
 export const peso = (value: number) => `₱${Number(value).toLocaleString('en-PH')}`

@@ -1,0 +1,70 @@
+import { createClient } from 'npm:@supabase/supabase-js@2'
+
+const cors = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-client-info',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+}
+
+const escapeHtml = (value: string) => value.replace(/[&<>"']/g, char => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+}[char]!))
+
+Deno.serve(async request => {
+  if (request.method === 'OPTIONS') return new Response('ok', { headers: cors })
+  if (request.method !== 'POST') return Response.json({ error: 'Method not allowed' }, { status: 405, headers: cors })
+
+  const url = Deno.env.get('SUPABASE_URL')!
+  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  const resendKey = Deno.env.get('RESEND_API_KEY')
+  const from = Deno.env.get('BOOKING_EMAIL_FROM')
+  if (!resendKey || !from) return Response.json({ error: 'Booking email is not configured.' }, { status: 503, headers: cors })
+
+  const authorization = request.headers.get('Authorization')
+  if (!authorization) return Response.json({ error: 'Sign in as an administrator.' }, { status: 401, headers: cors })
+  const caller = createClient(url, Deno.env.get('SUPABASE_ANON_KEY')!, { global: { headers: { Authorization: authorization } } })
+  const { data: { user }, error: authError } = await caller.auth.getUser()
+  if (authError || !user) return Response.json({ error: 'Invalid session.' }, { status: 401, headers: cors })
+
+  const db = createClient(url, serviceKey)
+  const { data: profile } = await db.from('profiles').select('is_admin').eq('id', user.id).maybeSingle()
+  if (!profile?.is_admin) return Response.json({ error: 'Administrator access required.' }, { status: 403, headers: cors })
+
+  const { booking_id } = await request.json()
+  if (!booking_id) return Response.json({ error: 'Booking id is required.' }, { status: 400, headers: cors })
+  const { data: booking, error: bookingError } = await db.from('bookings')
+      .select('id,reference,court_id,booking_date,start_hour,duration_hours,total_price,status,payment_status,customer_name,customer_email,confirmation_email_sent_at,profiles(full_name,email)')
+    .eq('id', booking_id).single()
+  if (bookingError || !booking) return Response.json({ error: 'Booking not found.' }, { status: 404, headers: cors })
+  if (booking.status !== 'confirmed' || booking.payment_status !== 'verified') {
+    return Response.json({ error: 'Only approved and verified bookings receive confirmation email.' }, { status: 409, headers: cors })
+  }
+  if (booking.confirmation_email_sent_at) return Response.json({ sent: true, already_sent: true }, { headers: cors })
+
+  const recipient = booking.customer_email || booking.profiles?.email
+  if (!recipient) return Response.json({ error: 'No customer email is saved for this booking.' }, { status: 422, headers: cors })
+  const customerName = booking.customer_name || booking.profiles?.full_name || 'there'
+  const start = new Date(`${booking.booking_date}T${String(booking.start_hour).padStart(2, '0')}:00:00+08:00`)
+  const end = new Date(start.getTime() + booking.duration_hours * 60 * 60 * 1000)
+  const dateLabel = start.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+  const timeLabel = (date: Date) => date.toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila', hour: 'numeric', minute: '2-digit' })
+  const safeName = escapeHtml(customerName)
+  const safeReference = escapeHtml(booking.reference)
+  const courtName = booking.court_id === 1 ? 'The Green · Court 1' : 'The Rally · Court 2'
+  const safeCourt = escapeHtml(courtName)
+  const safeDate = escapeHtml(dateLabel)
+  const safeTime = escapeHtml(`${timeLabel(start)} – ${timeLabel(end)}`)
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json', 'Idempotency-Key': `booking-confirmation-${booking.id}` },
+    body: JSON.stringify({
+      from, to: [recipient], subject: `Court booking confirmed · ${booking.reference}`,
+      html: `<div style="font-family:Arial,sans-serif;color:#203529;max-width:560px;margin:auto"><h1>Your court is confirmed!</h1><p>Hi ${safeName}, your payment has been verified and your booking is approved.</p><div style="padding:18px;background:#f0f4e9;border-radius:8px"><p><b>Booking reference:</b> ${safeReference}</p><p><b>Court:</b> ${safeCourt}</p><p><b>Date:</b> ${safeDate}</p><p><b>Time:</b> ${safeTime}</p><p><b>Play time:</b> ${booking.duration_hours} hour${booking.duration_hours === 1 ? '' : 's'}</p><p><b>Total paid:</b> ₱${Number(booking.total_price).toLocaleString('en-PH')}</p><p><b>Status:</b> Approved · Payment verified</p></div><p>We look forward to seeing you at Stag Base Pickle Hub.</p></div>`,
+      text: `Your court is confirmed!\n\nHi ${customerName}, your payment has been verified and your booking is approved.\n\nBooking reference: ${booking.reference}\nCourt: ${courtName}\nDate: ${dateLabel}\nTime: ${timeLabel(start)} – ${timeLabel(end)}\nPlay time: ${booking.duration_hours} hour${booking.duration_hours === 1 ? '' : 's'}\nTotal paid: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nStatus: Approved · Payment verified\n\nWe look forward to seeing you at Stag Base Pickle Hub.`,
+    }),
+  })
+  if (!response.ok) return Response.json({ error: 'Booking was approved, but confirmation email could not be sent.' }, { status: 502, headers: cors })
+  const { error: updateError } = await db.from('bookings').update({ confirmation_email_sent_at: new Date().toISOString() }).eq('id', booking.id)
+  if (updateError) return Response.json({ error: 'Email sent, but its delivery record could not be saved.' }, { status: 500, headers: cors })
+  return Response.json({ sent: true }, { headers: cors })
+})
