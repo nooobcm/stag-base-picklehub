@@ -50,7 +50,7 @@ Deno.serve(async request => {
   const timeLabel = (date: Date) => date.toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila', hour: 'numeric', minute: '2-digit' })
   const safeName = escapeHtml(customerName)
   const safeReference = escapeHtml(booking.reference)
-  const courtName = booking.court_id === 1 ? 'The Green · Court 1' : 'The Rally · Court 2'
+  const courtName = booking.court_id === 1 ? 'The Basic · Court 1' : 'The Pro · Court 2'
   const safeCourt = escapeHtml(courtName)
   const safeDate = escapeHtml(dateLabel)
   const safeTime = escapeHtml(`${timeLabel(start)} – ${timeLabel(end)}`)

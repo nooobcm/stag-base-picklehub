@@ -5,7 +5,7 @@ Responsive court booking app for a two-court pickleball facility. The web app us
 ## Local setup
 
 1. Create a Supabase project.
-2. In the Supabase SQL Editor, run the migration files in filename order. If migrations through guest bookings are already applied, also run [`202611150001_court_surface_pricing.sql`](supabase/migrations/202611150001_court_surface_pricing.sql) to set the new court rates. For a fresh database, run every file in `supabase/migrations` in order. If PostgREST reports a function missing after migration, run `NOTIFY pgrst, 'reload schema';` in the SQL Editor, then retry.
+2. In the Supabase SQL Editor, run the migration files in filename order. If migrations through court pricing are already applied, also run [`202611150002_rename_courts.sql`](supabase/migrations/202611150002_rename_courts.sql) to rename the saved courts. For a fresh database, run every file in `supabase/migrations` in order. If PostgREST reports a function missing after migration, run `NOTIFY pgrst, 'reload schema';` in the SQL Editor, then retry.
 3. Copy `.env.example` to `.env` and set the project URL and public anon key:
 
    ```env
