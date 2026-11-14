@@ -33,7 +33,7 @@ Deno.serve(async request => {
   const { booking_id } = await request.json()
   if (!booking_id) return Response.json({ error: 'Booking id is required.' }, { status: 400, headers: cors })
   const { data: booking, error: bookingError } = await db.from('bookings')
-      .select('id,reference,court_id,booking_date,start_hour,duration_hours,total_price,status,payment_status,customer_name,customer_email,confirmation_email_sent_at,profiles(full_name,email)')
+    .select('id,reference,court_id,booking_date,start_hour,duration_hours,selected_hours,total_price,status,payment_status,customer_name,customer_email,confirmation_email_sent_at,profiles(full_name,email)')
     .eq('id', booking_id).single()
   if (bookingError || !booking) return Response.json({ error: 'Booking not found.' }, { status: 404, headers: cors })
   if (booking.status !== 'confirmed' || booking.payment_status !== 'verified') {
@@ -45,22 +45,30 @@ Deno.serve(async request => {
   if (!recipient) return Response.json({ error: 'No customer email is saved for this booking.' }, { status: 422, headers: cors })
   const customerName = booking.customer_name || booking.profiles?.full_name || 'there'
   const start = new Date(`${booking.booking_date}T${String(booking.start_hour).padStart(2, '0')}:00:00+08:00`)
-  const end = new Date(start.getTime() + booking.duration_hours * 60 * 60 * 1000)
+  const bookingHours: number[] = booking.selected_hours?.length ? booking.selected_hours : Array.from({ length: booking.duration_hours }, (_value, index) => booking.start_hour + index)
+  const timeLabel = (hour: number) => new Date(`${booking.booking_date}T${String(hour % 24).padStart(2, '0')}:00:00+08:00`).toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila', hour: 'numeric', minute: '2-digit' })
+  const sortedHours = [...new Set(bookingHours)].sort((a, b) => a - b)
+  const intervals: number[][] = []
+  for (const hour of sortedHours) {
+    const latest = intervals.at(-1)
+    if (latest && hour === latest.at(-1)! + 1) latest.push(hour)
+    else intervals.push([hour])
+  }
+  const bookingTime = intervals.map(hours => `${timeLabel(hours[0])} – ${timeLabel(hours.at(-1)! + 1)}`).join(', ')
   const dateLabel = start.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
-  const timeLabel = (date: Date) => date.toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila', hour: 'numeric', minute: '2-digit' })
   const safeName = escapeHtml(customerName)
   const safeReference = escapeHtml(booking.reference)
   const courtName = booking.court_id === 1 ? 'The Basic · Court 1' : 'The Pro · Court 2'
   const safeCourt = escapeHtml(courtName)
   const safeDate = escapeHtml(dateLabel)
-  const safeTime = escapeHtml(`${timeLabel(start)} – ${timeLabel(end)}`)
+  const safeTime = escapeHtml(bookingTime)
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json', 'Idempotency-Key': `booking-confirmation-${booking.id}` },
     body: JSON.stringify({
       from, to: [recipient], subject: `Court booking confirmed · ${booking.reference}`,
-      html: `<div style="font-family:Arial,sans-serif;color:#203529;max-width:560px;margin:auto"><h1>Your court is confirmed!</h1><p>Hi ${safeName}, your payment has been verified and your booking is approved.</p><div style="padding:18px;background:#f0f4e9;border-radius:8px"><p><b>Booking reference:</b> ${safeReference}</p><p><b>Court:</b> ${safeCourt}</p><p><b>Date:</b> ${safeDate}</p><p><b>Time:</b> ${safeTime}</p><p><b>Play time:</b> ${booking.duration_hours} hour${booking.duration_hours === 1 ? '' : 's'}</p><p><b>Total paid:</b> ₱${Number(booking.total_price).toLocaleString('en-PH')}</p><p><b>Status:</b> Approved · Payment verified</p></div><p>We look forward to seeing you at Stag Base Pickle Hub.</p></div>`,
-      text: `Your court is confirmed!\n\nHi ${customerName}, your payment has been verified and your booking is approved.\n\nBooking reference: ${booking.reference}\nCourt: ${courtName}\nDate: ${dateLabel}\nTime: ${timeLabel(start)} – ${timeLabel(end)}\nPlay time: ${booking.duration_hours} hour${booking.duration_hours === 1 ? '' : 's'}\nTotal paid: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nStatus: Approved · Payment verified\n\nWe look forward to seeing you at Stag Base Pickle Hub.`,
+      html: `<div style="font-family:Arial,sans-serif;color:#203529;max-width:560px;margin:auto"><h1>Your court is confirmed!</h1><p>Hi ${safeName}, your payment has been verified and your booking is confirmed.</p><div style="padding:18px;background:#f0f4e9;border-radius:8px"><p><b>Booking reference:</b> ${safeReference}</p><p><b>Court:</b> ${safeCourt}</p><p><b>Date:</b> ${safeDate}</p><p><b>Time:</b> ${safeTime}</p><p><b>Play time:</b> ${booking.duration_hours} hour${booking.duration_hours === 1 ? '' : 's'}</p><p><b>Total paid:</b> ₱${Number(booking.total_price).toLocaleString('en-PH')}</p><p><b>Status:</b> Confirmed · Payment verified</p></div><p>We look forward to seeing you at Stag Base Pickle Hub.</p></div>`,
+      text: `Your court is confirmed!\n\nHi ${customerName}, your payment has been verified and your booking is confirmed.\n\nBooking reference: ${booking.reference}\nCourt: ${courtName}\nDate: ${dateLabel}\nTime: ${bookingTime}\nPlay time: ${booking.duration_hours} hour${booking.duration_hours === 1 ? '' : 's'}\nTotal paid: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nStatus: Confirmed · Payment verified\n\nWe look forward to seeing you at Stag Base Pickle Hub.`,
     }),
   })
   if (!response.ok) return Response.json({ error: 'Booking was approved, but confirmation email could not be sent.' }, { status: 502, headers: cors })

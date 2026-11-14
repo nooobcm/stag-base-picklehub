@@ -5,7 +5,7 @@ Responsive court booking app for a two-court pickleball facility. The web app us
 ## Local setup
 
 1. Create a Supabase project.
-2. In the Supabase SQL Editor, run the migration files in filename order. For an existing database, apply each migration that has not yet been run, in order. The latest migration, [`202611150004_admin_court_pricing.sql`](supabase/migrations/202611150004_admin_court_pricing.sql), enables admin pricing controls. For a fresh database, run every file in `supabase/migrations` in order. If PostgREST reports a function missing after migration, run `NOTIFY pgrst, 'reload schema';` in the SQL Editor, then retry.
+2. In the Supabase SQL Editor, run the migration files in filename order. For an existing database, apply each migration that has not yet been run, in order. The latest migration, [`202611150005_nonconsecutive_booking_hours.sql`](supabase/migrations/202611150005_nonconsecutive_booking_hours.sql), enables independent nonconsecutive hourly selections. For a fresh database, run every file in `supabase/migrations` in order. If PostgREST reports a function missing after migration, run `NOTIFY pgrst, 'reload schema';` in the SQL Editor, then retry.
 3. Copy `.env.example` to `.env` and set the project URL and public anon key:
 
    ```env
