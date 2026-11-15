@@ -66,11 +66,11 @@ Deno.serve(async request => {
   const safeDate = escapeHtml(dateLabel)
   const safeTime = escapeHtml(bookingTime)
   const paymentHtml = booking.payment_status === 'verified'
-    ? `<p><b>Total paid:</b> ₱${Number(booking.total_price).toLocaleString('en-PH')}</p><p><b>Status:</b> Confirmed · Payment verified</p>`
-    : `<p><b>Amount due:</b> ₱${Number(booking.total_price).toLocaleString('en-PH')}</p><p><b>Status:</b> Confirmed · Payment due</p><p>You may pay later by GCash. Account name: <b>M* AN***A S.</b><br>GCash number: <b>09052692785</b></p>`
+    ? `<p><b>Total paid:</b> ₱${Number(booking.total_price).toLocaleString('en-PH')}</p><p><b>Status:</b> Booked · Payment verified</p>`
+    : `<p><b>Amount due:</b> ₱${Number(booking.total_price).toLocaleString('en-PH')}</p><p><b>Status:</b> Booked · Payment due</p><p>You may pay later by GCash. Account name: <b>M* AN***A S.</b><br>GCash number: <b>09052692785</b></p>`
   const paymentText = booking.payment_status === 'verified'
-    ? `Total paid: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nStatus: Confirmed · Payment verified`
-    : `Amount due: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nStatus: Confirmed · Payment due\n\nYou may pay later by GCash. Account name: M* AN***A S.\nGCash number: 09052692785`
+    ? `Total paid: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nStatus: Booked · Payment verified`
+    : `Amount due: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nStatus: Booked · Payment due\n\nYou may pay later by GCash. Account name: M* AN***A S.\nGCash number: 09052692785`
   const introHtml = booking.payment_status === 'verified'
     ? `Hi ${safeName}, your payment has been verified and your booking is confirmed.`
     : `Hi ${safeName}, your booking is confirmed. Payment is not required to reserve now; you may pay later using the GCash details below.`
