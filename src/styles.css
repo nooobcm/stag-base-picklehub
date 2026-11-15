@@ -96,6 +96,59 @@ body{min-width:0}
 .admin-date-actions .admin-date-today{min-width:54px}
 @media(max-width:1024px){.admin-filters{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:8px}.admin-booking-search{grid-column:1}.admin-date-nav{grid-column:2}.admin-filters select{width:100%;min-width:0}.admin-date-nav label input{width:110px}}
 @media(max-width:680px){.admin-filters{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.admin-booking-search{grid-column:1/-1}.admin-date-nav{grid-column:1/-1}.admin-date-nav{gap:6px;padding-left:8px}.admin-date-nav label input{width:125px}.admin-date-actions{gap:3px}}
+@media(max-width:1024px){
+  .booking-layout{width:100%;max-width:100%;padding:38px 20px 52px}
+  .booking-grid{grid-template-columns:minmax(0,1fr);gap:16px;align-items:stretch}
+  .booking-form,.booking-summary{width:100%;max-width:100%;min-width:0}
+  .booking-form{padding:5px 18px}
+  .booking-summary{position:static;padding:20px}
+  .booking-summary h3{font-size:20px}
+  .summary-line{min-width:0;gap:12px;line-height:1.45}
+  .summary-line span{flex:0 0 auto}
+  .summary-line b{min-width:0;overflow-wrap:anywhere}
+  .guest-contact-fields,.guest-contact-fields label,.guest-contact-fields input{min-width:0;width:100%;max-width:100%}
+  .availability-picker,.availability-picker-head,.availability-table{min-width:0;max-width:100%}
+  .availability-picker-head{flex-wrap:wrap}
+  .availability-picker-head>div{min-width:0}
+  .availability-picker-head h3,.availability-picker-head p{overflow-wrap:anywhere}
+  .availability-days{min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+  .availability-day{min-width:48px}
+  .availability-table{overflow-x:hidden;padding-right:12px;padding-left:12px}
+  .availability-table-heading,.availability-time-row{grid-template-columns:minmax(90px,25%) minmax(0,1fr);gap:8px}
+  .availability-time-label{white-space:normal;line-height:1.35}
+  .availability-slot{width:100%;min-width:0;padding:6px 4px;text-align:center}
+  .availability-legend{gap:10px;line-height:1.5}
+  .selection-hint,.alert{min-width:0;overflow-wrap:anywhere}
+  .hold-panel,.hold-payment-info,.proof-preview{min-width:0;max-width:100%}
+  .gcash-payment-qr{width:min(100%,240px)}
+}
+@media(max-width:520px){
+  .booking-layout{padding:30px 14px 40px}
+  .booking-form{padding:4px 12px}
+  .form-section{padding:17px 0}
+  .court-choice{grid-template-columns:minmax(0,1fr)}
+  .choice-card{width:100%;min-width:0}
+  .availability-picker-head{align-items:flex-start;padding:12px}
+  .availability-picker-head>button{margin-left:auto;padding:8px 9px}
+  .availability-days{gap:4px;padding:9px 6px}
+  .availability-arrow{flex-basis:22px}
+  .availability-day{flex:0 0 42px;min-width:42px;min-height:50px}
+  .availability-day small{font-size:8px}
+  .availability-day b{font-size:14px}
+  .availability-table{padding:5px 7px 0}
+  .availability-table-heading,.availability-time-row{grid-template-columns:minmax(78px,30%) minmax(0,1fr);gap:6px}
+  .availability-table-heading{font-size:7px}
+  .availability-table-heading span:last-child{font-size:9px}
+  .availability-time-label{font-size:9px}
+  .availability-slot{min-height:40px;font-size:10px}
+  .availability-slot small{font-size:8px}
+  .availability-legend{padding:9px;gap:8px;font-size:8px}
+  .booking-summary{padding:17px 14px}
+  .summary-line{font-size:10px}
+  .summary-total b{font-size:21px}
+  .booking-agreement{grid-template-columns:16px minmax(0,1fr);font-size:9px}
+  .full-button{min-height:46px;padding:12px;font-size:12px}
+}
 
 /* Keep the mobile layout at the device viewport size and prevent desktop zoom
    from creating a narrow, horizontally overflowing page. */
