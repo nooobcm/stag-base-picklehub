@@ -36,8 +36,8 @@ Deno.serve(async request => {
     .select('id,reference,court_id,booking_date,start_hour,duration_hours,selected_hours,total_price,status,payment_status,customer_name,customer_email,confirmation_email_sent_at,profiles(full_name,email)')
     .eq('id', booking_id).single()
   if (bookingError || !booking) return Response.json({ error: 'Booking not found.' }, { status: 404, headers: cors })
-  if (booking.status !== 'confirmed' || booking.payment_status !== 'verified') {
-    return Response.json({ error: 'Only approved and verified bookings receive confirmation email.' }, { status: 409, headers: cors })
+  if (booking.status !== 'confirmed' || !['verified', 'unpaid'].includes(booking.payment_status)) {
+    return Response.json({ error: 'Only confirmed bookings can receive a confirmation email.' }, { status: 409, headers: cors })
   }
   if (booking.confirmation_email_sent_at) return Response.json({ sent: true, already_sent: true }, { headers: cors })
 
@@ -62,13 +62,25 @@ Deno.serve(async request => {
   const safeCourt = escapeHtml(courtName)
   const safeDate = escapeHtml(dateLabel)
   const safeTime = escapeHtml(bookingTime)
+  const paymentHtml = booking.payment_status === 'verified'
+    ? `<p><b>Total paid:</b> ₱${Number(booking.total_price).toLocaleString('en-PH')}</p><p><b>Status:</b> Confirmed · Payment verified</p>`
+    : `<p><b>Amount due:</b> ₱${Number(booking.total_price).toLocaleString('en-PH')}</p><p><b>Status:</b> Confirmed · Payment due</p><p>You may pay later by GCash. Account name: <b>M* AN***A S.</b><br>GCash number: <b>09052692785</b></p>`
+  const paymentText = booking.payment_status === 'verified'
+    ? `Total paid: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nStatus: Confirmed · Payment verified`
+    : `Amount due: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nStatus: Confirmed · Payment due\n\nYou may pay later by GCash. Account name: M* AN***A S.\nGCash number: 09052692785`
+  const introHtml = booking.payment_status === 'verified'
+    ? `Hi ${safeName}, your payment has been verified and your booking is confirmed.`
+    : `Hi ${safeName}, your booking is confirmed. Payment is not required to reserve now; you may pay later using the GCash details below.`
+  const introText = booking.payment_status === 'verified'
+    ? `Hi ${customerName}, your payment has been verified and your booking is confirmed.`
+    : `Hi ${customerName}, your booking is confirmed. Payment is not required to reserve now; you may pay later using the GCash details below.`
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json', 'Idempotency-Key': `booking-confirmation-${booking.id}` },
     body: JSON.stringify({
       from, to: [recipient], subject: `Court booking confirmed · ${booking.reference}`,
-      html: `<div style="font-family:Arial,sans-serif;color:#203529;max-width:560px;margin:auto"><h1>Your court is confirmed!</h1><p>Hi ${safeName}, your payment has been verified and your booking is confirmed.</p><div style="padding:18px;background:#f0f4e9;border-radius:8px"><p><b>Booking reference:</b> ${safeReference}</p><p><b>Court:</b> ${safeCourt}</p><p><b>Date:</b> ${safeDate}</p><p><b>Time:</b> ${safeTime}</p><p><b>Play time:</b> ${booking.duration_hours} hour${booking.duration_hours === 1 ? '' : 's'}</p><p><b>Total paid:</b> ₱${Number(booking.total_price).toLocaleString('en-PH')}</p><p><b>Status:</b> Confirmed · Payment verified</p></div><p>We look forward to seeing you at Stag Base Pickle Hub.</p></div>`,
-      text: `Your court is confirmed!\n\nHi ${customerName}, your payment has been verified and your booking is confirmed.\n\nBooking reference: ${booking.reference}\nCourt: ${courtName}\nDate: ${dateLabel}\nTime: ${bookingTime}\nPlay time: ${booking.duration_hours} hour${booking.duration_hours === 1 ? '' : 's'}\nTotal paid: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nStatus: Confirmed · Payment verified\n\nWe look forward to seeing you at Stag Base Pickle Hub.`,
+      html: `<div style="font-family:Arial,sans-serif;color:#203529;max-width:560px;margin:auto"><h1>Your court is confirmed!</h1><p>${introHtml}</p><div style="padding:18px;background:#f0f4e9;border-radius:8px"><p><b>Booking reference:</b> ${safeReference}</p><p><b>Court:</b> ${safeCourt}</p><p><b>Date:</b> ${safeDate}</p><p><b>Time:</b> ${safeTime}</p><p><b>Play time:</b> ${booking.duration_hours} hour${booking.duration_hours === 1 ? '' : 's'}</p>${paymentHtml}</div><p>We look forward to seeing you at Stag Base Pickle Hub.</p></div>`,
+      text: `Your court is confirmed!\n\n${introText}\n\nBooking reference: ${booking.reference}\nCourt: ${courtName}\nDate: ${dateLabel}\nTime: ${bookingTime}\nPlay time: ${booking.duration_hours} hour${booking.duration_hours === 1 ? '' : 's'}\n${paymentText}\n\nWe look forward to seeing you at Stag Base Pickle Hub.`,
     }),
   })
   if (!response.ok) {
