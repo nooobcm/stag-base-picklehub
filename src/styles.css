@@ -149,6 +149,11 @@ body{min-width:0}
   .booking-agreement{grid-template-columns:16px minmax(0,1fr);font-size:9px}
   .full-button{min-height:46px;padding:12px;font-size:12px}
 }
+.footer-bottom{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:12px}
+.footer-bottom>span:last-child{justify-self:end}
+.footer-dev{justify-self:center;color:#97a595;font:500 8px 'DM Mono',monospace;letter-spacing:.6px;white-space:nowrap}
+.footer-dev:hover{color:#d2dfcf;text-decoration:underline}
+@media(max-width:1024px){.footer-bottom{display:flex}.footer-dev{flex:1 0 100%;order:3;text-align:center}.footer-bottom>span:last-child{order:2}}
 
 /* Keep the mobile layout at the device viewport size and prevent desktop zoom
    from creating a narrow, horizontally overflowing page. */
