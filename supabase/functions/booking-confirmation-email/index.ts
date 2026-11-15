@@ -71,7 +71,11 @@ Deno.serve(async request => {
       text: `Your court is confirmed!\n\nHi ${customerName}, your payment has been verified and your booking is confirmed.\n\nBooking reference: ${booking.reference}\nCourt: ${courtName}\nDate: ${dateLabel}\nTime: ${bookingTime}\nPlay time: ${booking.duration_hours} hour${booking.duration_hours === 1 ? '' : 's'}\nTotal paid: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nStatus: Confirmed · Payment verified\n\nWe look forward to seeing you at Stag Base Pickle Hub.`,
     }),
   })
-  if (!response.ok) return Response.json({ error: 'Booking was approved, but confirmation email could not be sent.' }, { status: 502, headers: cors })
+  if (!response.ok) {
+    const providerError = await response.json().catch(() => null) as { message?: string; name?: string } | null
+    const detail = providerError?.message || providerError?.name || `Email provider returned HTTP ${response.status}`
+    return Response.json({ error: `Booking was approved, but the email provider rejected the confirmation: ${detail}` }, { status: 502, headers: cors })
+  }
   const { error: updateError } = await db.from('bookings').update({ confirmation_email_sent_at: new Date().toISOString() }).eq('id', booking.id)
   if (updateError) return Response.json({ error: 'Email sent, but its delivery record could not be saved.' }, { status: 500, headers: cors })
   return Response.json({ sent: true }, { headers: cors })
