@@ -126,3 +126,28 @@ body{min-width:0}
   .footer-bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 14px;line-height:1.6;overflow-wrap:anywhere}
   .footer-bottom>span{min-width:0}
 }
+
+/* The site has a 150% desktop zoom. A phone screenshot can therefore report
+   a CSS viewport near 900px, so apply the compact pricing layout before 680px. */
+@media(max-width:1024px){
+  html{zoom:1}
+  .admin-pricing{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    width:100%;
+    min-width:0;
+    max-width:100%;
+    gap:14px;
+    padding:16px;
+    margin:0 0 28px;
+  }
+  .admin-pricing>div:first-child,
+  .admin-pricing form{width:100%;min-width:0;max-width:100%}
+  .admin-pricing>div:first-child p{max-width:100%;overflow-wrap:anywhere}
+  .admin-pricing form{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+  .admin-pricing label{display:grid;width:100%;min-width:0;max-width:100%;gap:6px}
+  .admin-pricing input{display:block;width:100%;min-width:0;max-width:100%}
+  .admin-pricing label small{overflow-wrap:anywhere}
+  .admin-pricing form .button{grid-column:1;width:100%;max-width:100%;margin:0;white-space:normal}
+  .admin-pricing>.alert{grid-column:1;min-width:0;overflow-wrap:anywhere}
+}
