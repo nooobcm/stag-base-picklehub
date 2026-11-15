@@ -252,3 +252,16 @@ body{min-width:0}
   .admin-pricing form .button{grid-column:1;width:100%;max-width:100%;margin:0;white-space:normal}
   .admin-pricing>.alert{grid-column:1;min-width:0;overflow-wrap:anywhere}
 }
+
+/* Compact admin daily timelines into readable 5-column hour grids. */
+.schedule-scroll{width:100%;min-width:0;max-width:100%;overflow:visible}
+.schedule-hours{grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;width:100%;min-width:0}
+.schedule-hour-cell{min-width:0}
+.schedule-hour-time{font-size:9px;white-space:normal;line-height:1.3}
+.schedule-hour{min-width:0;white-space:normal;overflow-wrap:anywhere}
+@media(max-width:900px){.schedule-hours{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:600px){.schedule-hours{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.schedule-hour-time{font-size:8px}.schedule-hour{min-height:32px;font-size:8px}}
+.schedule-hour-cell{position:relative;display:block}
+.schedule-hour-time{position:absolute;z-index:1;top:7px;left:6px;right:6px;text-align:center;white-space:nowrap;font-size:8px;line-height:1.2}
+.schedule-hour{min-height:52px;padding:19px 5px 5px}
+@media(max-width:600px){.schedule-hour-time{top:6px;font-size:7px}.schedule-hour{min-height:48px;padding-top:18px}}
