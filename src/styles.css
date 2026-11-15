@@ -77,8 +77,25 @@ body{min-width:0}
 .schedule-legend .legend-available{background:#9ac45a}.schedule-legend .legend-booked{background:#d75b55}.schedule-legend .legend-pending{background:#4f91d2}.schedule-legend .legend-maintenance{background:#aab0b5}
 .admin-day-schedule-heading>div:first-child small{font-size:9px;color:#788174}
 .admin-day-schedules{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+/* Let hourly tiles wrap into readable rows instead of shrinking into a long strip. */
+.schedule-scroll{width:100%;min-width:0;overflow:visible}
+.schedule-hours{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:8px;width:100%;min-width:0}
+.schedule-hour-cell{display:grid;grid-template-rows:auto auto;gap:5px;min-width:0}
+.schedule-hour-time{color:#65715f;font:500 9px 'DM Mono',monospace;white-space:nowrap}
+.schedule-hour{min-width:0;min-height:36px;padding:0 5px;text-align:center}
+@media(max-width:1024px){.schedule-scroll{overflow:visible}.schedule-hours{grid-template-columns:repeat(auto-fit,minmax(108px,1fr));min-width:0}.schedule-hour-time{font-size:9px}}
 .footer-owner-login{display:inline-flex;align-items:center;gap:4px;color:#839084;font-size:9px;font-weight:500;opacity:.72;transition:opacity .15s,color .15s}.footer-owner-login:hover{color:#d2dfcf;opacity:1}@media(max-width:680px){.footer-owner-login{grid-column:2;grid-row:1/3;align-self:center;justify-self:end;font-size:8px}}
 .availability-month-button{position:relative;display:inline-flex;align-items:center;gap:8px;background:#fff;cursor:pointer;font:500 10px 'DM Sans',sans-serif}.availability-month-button:disabled{opacity:.6;cursor:not-allowed}.availability-month-button svg{color:#5b6d56}.availability-date-input{position:fixed;left:-10000px;top:auto;width:1px;height:1px;opacity:0;pointer-events:none}
+.admin-filters{grid-template-columns:minmax(160px,.9fr) minmax(340px,2fr) minmax(125px,.8fr) minmax(145px,.9fr);align-items:center}
+.admin-date-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;height:42px;padding:5px 6px 5px 11px;border:1px solid #dfe5dc;border-radius:7px;background:#fff}
+.admin-date-nav label{display:grid;min-width:0;gap:1px;color:#697568;font-size:9px;font-weight:700;white-space:nowrap}
+.admin-date-nav label input{width:132px;min-width:0;height:24px;padding:0;border:0;background:transparent;color:#27352b;font-size:11px;outline:none}
+.admin-date-actions{display:flex;align-items:center;gap:4px;flex:0 0 auto}
+.admin-date-actions button{display:grid;place-items:center;height:29px;min-width:29px;padding:0 8px;border:1px solid #d7dfd5;border-radius:5px;background:#f9faf7;color:#3d5639;font-size:10px;font-weight:700}
+.admin-date-actions button:hover{border-color:#91ad70;background:#f0f5e9}
+.admin-date-actions .admin-date-today{min-width:54px}
+@media(max-width:1024px){.admin-filters{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:8px}.admin-booking-search{grid-column:1}.admin-date-nav{grid-column:2}.admin-filters select{width:100%;min-width:0}.admin-date-nav label input{width:110px}}
+@media(max-width:680px){.admin-filters{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.admin-booking-search{grid-column:1/-1}.admin-date-nav{grid-column:1/-1}.admin-date-nav{gap:6px;padding-left:8px}.admin-date-nav label input{width:125px}.admin-date-actions{gap:3px}}
 
 /* Keep the mobile layout at the device viewport size and prevent desktop zoom
    from creating a narrow, horizontally overflowing page. */
