@@ -22,11 +22,14 @@ Deno.serve(async request => {
 
   const authorization = request.headers.get('Authorization')
   if (!authorization) return Response.json({ error: 'Sign in as an administrator.' }, { status: 401, headers: cors })
-  const caller = createClient(url, Deno.env.get('SUPABASE_ANON_KEY')!, { global: { headers: { Authorization: authorization } } })
-  const { data: { user }, error: authError } = await caller.auth.getUser()
-  if (authError || !user) return Response.json({ error: 'Invalid session.' }, { status: 401, headers: cors })
-
   const db = createClient(url, serviceKey)
+  const accessToken = authorization.replace(/^Bearer\s+/i, '').trim()
+  const { data: { user }, error: authError } = await db.auth.getUser(accessToken)
+  if (authError || !user) {
+    console.error('Confirmation email admin authentication failed:', authError?.message || 'No user found')
+    return Response.json({ error: 'Admin session is invalid or expired. Sign out and sign back in, then retry.' }, { status: 401, headers: cors })
+  }
+
   const { data: profile } = await db.from('profiles').select('is_admin').eq('id', user.id).maybeSingle()
   if (!profile?.is_admin) return Response.json({ error: 'Administrator access required.' }, { status: 403, headers: cors })
 
