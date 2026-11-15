@@ -154,6 +154,31 @@ body{min-width:0}
 .footer-dev{justify-self:center;color:#97a595;font:500 8px 'DM Mono',monospace;letter-spacing:.6px;white-space:nowrap}
 .footer-dev:hover{color:#d2dfcf;text-decoration:underline}
 @media(max-width:1024px){.footer-bottom{display:flex}.footer-dev{flex:1 0 100%;order:3;text-align:center}.footer-bottom>span:last-child{order:2}}
+.booking-rules-dialog{width:min(100%,520px);height:min(68vh,520px);max-height:min(68vh,520px)}
+.booking-rules-heading{padding:20px 22px 14px}
+.booking-rules-heading h2{font-size:20px;margin-top:9px}
+.booking-rules-heading p{font-size:11px}
+.booking-rules-content{padding:8px 22px 12px}
+.booking-rules-content li{font-size:10px;line-height:1.5;padding:6px 0}
+.booking-rules-footer{padding:10px 16px 14px}
+.booking-rules-footer .button{min-height:40px;padding:9px 14px}
+@media(max-width:680px){.booking-rules-dialog{width:100%;height:min(82dvh,680px);max-height:min(82dvh,680px)}.booking-rules-heading{padding:17px 16px 12px}.booking-rules-heading h2{font-size:18px}.booking-rules-content{padding:6px 16px 10px}.booking-rules-content li{font-size:10px}.booking-rules-footer{padding:9px 12px 12px}}
+.booking-rules-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:rgba(20,35,29,.62);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.booking-rules-dialog{display:grid;grid-template-rows:auto minmax(0,1fr) auto;width:min(100%,610px);max-height:min(88vh,820px);overflow:hidden;border:1px solid #e1e7df;border-radius:14px;background:#fff;box-shadow:0 24px 80px rgba(13,31,22,.24)}
+.booking-rules-heading{position:relative;padding:24px 26px 18px;border-bottom:1px solid #e7ebe5}
+.booking-rules-heading>.eyebrow{font-size:9px;letter-spacing:1.4px}
+.booking-rules-heading h2{margin:12px 38px 8px 0;color:#183124;font:800 22px/1.15 Manrope,sans-serif;letter-spacing:-.7px}
+.booking-rules-heading p{margin:0;color:#727e73;font-size:12px;line-height:1.6}
+.booking-rules-close{position:absolute;top:17px;right:17px;display:grid;place-items:center;width:34px;height:34px;border:1px solid #e1e7df;border-radius:50%;background:#fff;color:#566356}
+.booking-rules-close:hover{background:#f1f5ec;color:#233d2c}
+.booking-rules-content{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 26px 18px;scrollbar-gutter:stable}
+.booking-rules-content ol{display:grid;gap:2px;margin:0;padding:0;list-style:none}
+.booking-rules-content li{display:grid;grid-template-columns:25px minmax(0,1fr);gap:8px;padding:8px 0;color:#3f4d42;font-size:11px;line-height:1.6}
+.booking-rules-number{font:700 11px 'DM Mono',monospace;color:#729546}
+.booking-rules-thanks{margin:12px 0 0;padding:12px 14px;border-radius:7px;background:#f0f5e8;color:#476335;font-size:11px;font-weight:700;line-height:1.55}
+.booking-rules-footer{padding:12px 20px 18px;border-top:1px solid #e7ebe5;background:#fff}
+.booking-rules-footer .button{margin:0}
+@media(max-width:680px){.booking-rules-backdrop{padding:10px}.booking-rules-dialog{width:100%;max-height:calc(100dvh - 20px);border-radius:12px}.booking-rules-heading{padding:18px 18px 14px}.booking-rules-heading h2{font-size:19px;margin-top:10px}.booking-rules-heading p{font-size:11px;line-height:1.5}.booking-rules-content{padding:8px 18px 14px}.booking-rules-content li{grid-template-columns:22px minmax(0,1fr);gap:6px;padding:7px 0;font-size:10px;line-height:1.5}.booking-rules-footer{padding:10px 14px 14px}}
 
 /* Keep the mobile layout at the device viewport size and prevent desktop zoom
    from creating a narrow, horizontally overflowing page. */
