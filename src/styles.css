@@ -254,7 +254,7 @@ body{min-width:0}
 }
 
 /* Compact admin daily timelines into readable 5-column hour grids. */
-.schedule-scroll{width:100%;min-width:0;max-width:100%;overflow:visible}
+.schedule-scroll{width:100%;min-width:0;max-width:100%;overflow:visible;touch-action:auto;overscroll-behavior:auto}
 .schedule-hours{grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;width:100%;min-width:0}
 .schedule-hour-cell{min-width:0}
 .schedule-hour-time{font-size:9px;white-space:normal;line-height:1.3}
