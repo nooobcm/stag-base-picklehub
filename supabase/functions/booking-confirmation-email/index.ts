@@ -36,7 +36,7 @@ Deno.serve(async request => {
   const { booking_id } = await request.json()
   if (!booking_id) return Response.json({ error: 'Booking id is required.' }, { status: 400, headers: cors })
   const { data: booking, error: bookingError } = await db.from('bookings')
-    .select('id,reference,court_id,booking_date,start_hour,duration_hours,selected_hours,total_price,status,payment_status,customer_name,customer_email,confirmation_email_sent_at,profiles(full_name,email)')
+    .select('id,reference,court_id,court_selections,booking_date,start_hour,duration_hours,selected_hours,total_price,status,payment_status,customer_name,customer_email,confirmation_email_sent_at,profiles(full_name,email)')
     .eq('id', booking_id).single()
   if (bookingError || !booking) return Response.json({ error: 'Booking not found.' }, { status: 404, headers: cors })
   if (booking.status !== 'confirmed' || !['verified', 'unpaid'].includes(booking.payment_status)) {
@@ -47,21 +47,25 @@ Deno.serve(async request => {
   const recipient = booking.customer_email || booking.profiles?.email
   if (!recipient) return Response.json({ error: 'No customer email is saved for this booking.' }, { status: 422, headers: cors })
   const customerName = booking.customer_name || booking.profiles?.full_name || 'there'
-  const start = new Date(`${booking.booking_date}T${String(booking.start_hour).padStart(2, '0')}:00:00+08:00`)
-  const bookingHours: number[] = booking.selected_hours?.length ? booking.selected_hours : Array.from({ length: booking.duration_hours }, (_value, index) => booking.start_hour + index)
+  const selections: { court_id:number; hours:number[] }[] = booking.court_selections?.length
+    ? booking.court_selections
+    : [{ court_id:booking.court_id, hours:booking.selected_hours?.length ? booking.selected_hours : Array.from({ length: booking.duration_hours }, (_value, index) => booking.start_hour + index) }]
+  const start = new Date(`${booking.booking_date}T${String(Math.min(...selections.flatMap(selection => selection.hours))).padStart(2, '0')}:00:00+08:00`)
   const timeLabel = (hour: number) => new Date(`${booking.booking_date}T${String(hour % 24).padStart(2, '0')}:00:00+08:00`).toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila', hour: 'numeric', minute: '2-digit' })
-  const sortedHours = [...new Set(bookingHours)].sort((a, b) => a - b)
-  const intervals: number[][] = []
-  for (const hour of sortedHours) {
-    const latest = intervals.at(-1)
-    if (latest && hour === latest.at(-1)! + 1) latest.push(hour)
-    else intervals.push([hour])
+  const formatRanges = (hours: number[]) => {
+    const intervals: number[][] = []
+    for (const hour of [...new Set(hours)].sort((a, b) => a - b)) {
+      const latest = intervals.at(-1)
+      if (latest && hour === latest.at(-1)! + 1) latest.push(hour)
+      else intervals.push([hour])
+    }
+    return intervals.map(hours => `${timeLabel(hours[0])} – ${timeLabel(hours.at(-1)! + 1)}`).join(', ')
   }
-  const bookingTime = intervals.map(hours => `${timeLabel(hours[0])} – ${timeLabel(hours.at(-1)! + 1)}`).join(', ')
+  const bookingTime = selections.map(selection => `${selection.court_id === 1 ? 'The Basic · Court 1' : 'The Pro · Court 2'}: ${formatRanges(selection.hours)}`).join('\n')
   const dateLabel = start.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
   const safeName = escapeHtml(customerName)
   const safeReference = escapeHtml(booking.reference)
-  const courtName = booking.court_id === 1 ? 'The Basic · Court 1' : 'The Pro · Court 2'
+  const courtName = selections.map(selection => selection.court_id === 1 ? 'The Basic · Court 1' : 'The Pro · Court 2').join(' + ')
   const safeCourt = escapeHtml(courtName)
   const safeDate = escapeHtml(dateLabel)
   const safeTime = escapeHtml(bookingTime)
@@ -82,8 +86,8 @@ Deno.serve(async request => {
     headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json', 'Idempotency-Key': `booking-confirmation-${booking.id}` },
     body: JSON.stringify({
       from, to: [recipient], subject: `Court booking confirmed · ${booking.reference}`,
-      html: `<div style="font-family:Arial,sans-serif;color:#203529;max-width:560px;margin:auto"><h1>Your court is confirmed!</h1><p>${introHtml}</p><div style="padding:18px;background:#f0f4e9;border-radius:8px"><p><b>Booking reference:</b> ${safeReference}</p><p><b>Court:</b> ${safeCourt}</p><p><b>Date:</b> ${safeDate}</p><p><b>Time:</b> ${safeTime}</p><p><b>Play time:</b> ${booking.duration_hours} hour${booking.duration_hours === 1 ? '' : 's'}</p>${paymentHtml}</div><p>We look forward to seeing you at Stag Base Pickle Hub.</p></div>`,
-      text: `Your court is confirmed!\n\n${introText}\n\nBooking reference: ${booking.reference}\nCourt: ${courtName}\nDate: ${dateLabel}\nTime: ${bookingTime}\nPlay time: ${booking.duration_hours} hour${booking.duration_hours === 1 ? '' : 's'}\n${paymentText}\n\nWe look forward to seeing you at Stag Base Pickle Hub.`,
+      html: `<div style="font-family:Arial,sans-serif;color:#203529;max-width:560px;margin:auto"><h1>Your court is confirmed!</h1><p>${introHtml}</p><div style="padding:18px;background:#f0f4e9;border-radius:8px"><p><b>Booking reference:</b> ${safeReference}</p><p><b>Court(s):</b> ${safeCourt}</p><p><b>Date:</b> ${safeDate}</p><p><b>Time:</b><br>${safeTime.replaceAll('\n','<br>')}</p><p><b>Total reserved court hours:</b> ${selections.reduce((sum,selection)=>sum+selection.hours.length,0)}</p>${paymentHtml}</div><p>We look forward to seeing you at Stag Base Pickle Hub.</p></div>`,
+      text: `Your court is confirmed!\n\n${introText}\n\nBooking reference: ${booking.reference}\nCourt(s): ${courtName}\nDate: ${dateLabel}\nTime:\n${bookingTime}\nTotal reserved court hours: ${selections.reduce((sum,selection)=>sum+selection.hours.length,0)}\n${paymentText}\n\nWe look forward to seeing you at Stag Base Pickle Hub.`,
     }),
   })
   if (!response.ok) {

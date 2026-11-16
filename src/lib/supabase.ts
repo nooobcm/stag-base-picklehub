@@ -9,6 +9,7 @@ export type Booking = {
   start_hour: number; duration_hours: number; total_price: number; status: string
   payment_status: string; created_at: string; hold_expires_at?: string | null
   selected_hours?: number[] | null
+  court_selections?: { court_id:number; hours:number[]; hourly_rate?:number; subtotal?:number }[] | null
   customer_name?: string | null; customer_email?: string | null; customer_phone?: string | null
   profiles?: { full_name: string; email: string } | null
   payments?: { status: string; rejection_reason: string | null; submitted_at: string }[]
