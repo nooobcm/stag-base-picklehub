@@ -28,8 +28,12 @@ self.addEventListener('notificationclick', event => {
     const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
     for (const client of windows) {
       if (client.url.startsWith(self.location.origin) && 'focus' in client) {
-        await client.navigate(target)
-        return client.focus()
+        try {
+          const navigatedClient = await client.navigate(target)
+          if (navigatedClient) return navigatedClient.focus()
+        } catch {
+          // Fall back to opening a new tab if the existing page cannot navigate.
+        }
       }
     }
     return self.clients.openWindow(target)
