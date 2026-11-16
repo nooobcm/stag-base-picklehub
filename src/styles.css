@@ -389,3 +389,4 @@ body{min-width:0}
 .admin-day-schedule-heading b{font-size:18px;font-weight:750;line-height:1.25}
 .admin-day-schedule-heading>div:first-child small{font-size:14px;font-weight:650;line-height:1.35}
 @media(max-width:600px){.admin-day-schedule-heading>div:first-child>.eyebrow{font-size:12px;letter-spacing:1.2px}.admin-day-schedule-heading b{font-size:17px}.admin-day-schedule-heading>div:first-child small{font-size:13px}}
+.header-admin .nav{margin-left:auto}

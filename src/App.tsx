@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react'
-import { Link, NavLink, Route, Routes, useNavigate, useParams } from 'react-router-dom'
+import { Link, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Clock3, Copy, CreditCard, Download, Facebook, FileCheck2, LockKeyhole, MapPin, Menu, ShieldCheck, Sparkles, Trash2, Trophy, UserRound, X } from 'lucide-react'
 import { supabase, type Booking, peso, hourLabel } from './lib/supabase'
 
@@ -23,6 +23,7 @@ const localDate = (daysAhead=0) => { const p=Object.fromEntries(new Intl.DateTim
 
 export default function App() {
   const navigate=useNavigate()
+  const isAdminRoute=useLocation().pathname.startsWith('/admin')
   const [user, setUser] = useState<User | null>(null)
   const [admin, setAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -45,7 +46,7 @@ export default function App() {
   const signOut = async () => { await supabase?.auth.signOut(); setUser(null); location.href = '/' }
   if (loading) return <div className="loading-page"><div className="spinner" />Loading Stag Base…</div>
   return <CourtPricingContext.Provider value={{rates:courtRates,refresh:refreshCourtRates}}><BookingRulesContext.Provider value={openBookingRules}>
-    <Header user={user} admin={admin} signOut={signOut} />
+    <Header user={user} admin={admin} signOut={signOut} adminView={isAdminRoute} />
     {!configured && <div className="setup-banner"><span>Demo preview</span> Connect Supabase to enable sign in, live availability and bookings. <a href="#setup">See setup</a></div>}
     <Routes>
       <Route path="/" element={<Home />} />
@@ -60,7 +61,7 @@ export default function App() {
       <Route path="/admin" element={user && admin ? <AdminDashboard /> : <AuthGate admin />} />
       <Route path="*" element={<Home />} />
     </Routes>
-    <Footer />
+    {!isAdminRoute&&<Footer />}
     {bookingRulesPath&&<BookingRulesDialog onClose={()=>setBookingRulesPath(null)} onContinue={()=>{const path=bookingRulesPath;setBookingRulesPath(null);navigate(path)}}/>}
   </BookingRulesContext.Provider></CourtPricingContext.Provider>
 }
@@ -86,11 +87,12 @@ const bookingRules=[
 ]
 function BookingRulesDialog({onClose,onContinue}:{onClose:()=>void;onContinue:()=>void}){useEffect(()=>{const handleKeyDown=(event:KeyboardEvent)=>{if(event.key==='Escape')onClose()};window.addEventListener('keydown',handleKeyDown);return()=>window.removeEventListener('keydown',handleKeyDown)},[onClose]);return <div className="booking-rules-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)onClose()}}><section className="booking-rules-dialog" role="dialog" aria-modal="true" aria-labelledby="booking-rules-title"><header className="booking-rules-heading"><span className="eyebrow">STAG BASE PICKLE HUB</span><button className="booking-rules-close" type="button" aria-label="Close rules" onClick={onClose}><X size={19}/></button><h2 id="booking-rules-title">PICKLEBALL COURT RULES</h2><p>Help us keep the courts safe, clean, and enjoyable for everyone. Please observe these rules:</p></header><div className="booking-rules-content"><ol>{bookingRules.map((rule,index)=><li key={rule}><span className="booking-rules-number">{index+1}.</span><span>{rule}</span></li>)}</ol><p className="booking-rules-thanks">Thank you for doing your part. Enjoy your game!</p></div><footer className="booking-rules-footer"><button type="button" className="button button-dark full-button" onClick={onContinue}>Agree &amp; Continue <ArrowRight size={16}/></button></footer></section></div>}
 
-function Header({ user, admin, signOut }: { user: User | null; admin: boolean; signOut: () => void }) {
+function Header({ user, admin, signOut, adminView=false }: { user: User | null; admin: boolean; signOut: () => void; adminView?: boolean }) {
   const [open, setOpen] = useState(false)
-  return <header className="header"><Link to="/" className="brand"><span className="brand-mark"><img src="/stag-base-logo.png" alt="Stag Base logo" /></span><span>Stag Base<span className="brand-dot">.</span><small>PICKLE HUB</small></span></Link>
-    <button className="mobile-menu" onClick={() => setOpen(!open)} aria-label="Toggle navigation">{open ? <X /> : <Menu />}</button>
-    <nav className={open ? 'nav nav-open' : 'nav'}>{(!user||!admin)&&<><NavLink to="/courts">The courts</NavLink><a href="/#how-it-works">How it works</a></>}{user ? <>{!admin&&<NavLink to="/dashboard">My bookings</NavLink>}{admin && <NavLink to="/admin">Admin</NavLink>}<button className="nav-login" onClick={signOut}>Sign out</button>{!admin&&<BookLink className="button button-dark nav-cta" to="/book">Book a court <ArrowUpRight size={16} /></BookLink>}</> : <BookLink className="button button-dark nav-cta" to="/book">Book a court <ArrowUpRight size={16} /></BookLink>}</nav>
+  const compactAdminHeader=adminView&&user&&admin
+  return <header className={`header${compactAdminHeader?' header-admin':''}`}>{compactAdminHeader?<div className="brand admin-brand-mark"><span className="brand-mark"><img src="/stag-base-logo.png" alt="Stag Base logo" /></span><span>Stag Base<span className="brand-dot">.</span><small>PICKLE HUB</small></span></div>:<Link to="/" className="brand"><span className="brand-mark"><img src="/stag-base-logo.png" alt="Stag Base logo" /></span><span>Stag Base<span className="brand-dot">.</span><small>PICKLE HUB</small></span></Link>}
+    {!compactAdminHeader&&<button className="mobile-menu" onClick={() => setOpen(!open)} aria-label="Toggle navigation">{open ? <X /> : <Menu />}</button>}
+    <nav className={open ? 'nav nav-open' : 'nav'}>{compactAdminHeader?<><NavLink to="/admin">Admin</NavLink><button className="nav-login" onClick={signOut}>Sign out</button></>:<>{(!user||!admin)&&<><NavLink to="/courts">The courts</NavLink><a href="/#how-it-works">How it works</a></>}{user ? <>{!admin&&<NavLink to="/dashboard">My bookings</NavLink>}{admin && <NavLink to="/admin">Admin</NavLink>}<button className="nav-login" onClick={signOut}>Sign out</button>{!admin&&<BookLink className="button button-dark nav-cta" to="/book">Book a court <ArrowUpRight size={16} /></BookLink>}</> : <BookLink className="button button-dark nav-cta" to="/book">Book a court <ArrowUpRight size={16} /></BookLink>}</>}</nav>
   </header>
 }
 
