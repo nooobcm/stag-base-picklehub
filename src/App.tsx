@@ -8,7 +8,6 @@ type CourtRates = Record<number, number>
 const CourtPricingContext=createContext<{rates:CourtRates;refresh:()=>Promise<void>}>({rates:{1:250,2:350},refresh:async()=>{}})
 const useCourtPricing=()=>useContext(CourtPricingContext)
 const BookingRulesContext=createContext<(path:string)=>void>(()=>{})
-const courtFloor = (courtId: number) => courtId === 2 ? 'Silica' : 'Rubberized'
 const compactHourLabel=(hour:number)=>`${hour%12||12}${hour<12?'AM':'PM'}`
 const slotRanges=(hours:number[])=>{const sorted=[...new Set(hours)].sort((a,b)=>a-b);const ranges:number[][]=[];for(const hour of sorted){const last=ranges.at(-1);if(last&&hour===last.at(-1)!+1)last.push(hour);else ranges.push([hour])}return ranges.map(range=>`${hourLabel(range[0])} – ${hourLabel(range.at(-1)!+1)}`).join(', ')}
 const bookingTimeLabel=(booking:{selected_hours?:number[]|null;start_hour:number;duration_hours:number})=>slotRanges(booking.selected_hours?.length?booking.selected_hours:Array.from({length:booking.duration_hours},(_,i)=>booking.start_hour+i))
@@ -247,8 +246,8 @@ function BookingGroupDetailsPage(){
  async function load(){
    if(!supabase||!ids.length){setLoading(false);setError('This grouped booking link is unavailable. Reopen it on the device where you made the reservation.');return}
    const results=await Promise.all(ids.map(id=>{const token=sessionStorage.getItem(`guest_booking_token:${id}`);return token?supabase!.rpc('get_guest_booking',{p_booking_id:id,p_token:token}):Promise.resolve({data:null,error:new Error('Booking access token is missing.')})}))
-   const failed=results.find(result=>result.error)
-   if(failed)setError(failed.error.message)
+   const failedError=results.find(result=>result.error)?.error
+   if(failedError)setError(failedError.message)
    else setBookings(results.map(result=>result.data).filter(Boolean).sort((a,b)=>a.court_id-b.court_id))
    setLoading(false)
  }
@@ -269,9 +268,9 @@ function BookingGroupDetailsPage(){
    if(!supabase||!held.length||!window.confirm('Cancel both court holds and release all selected times?'))return
    setBusy(true);setError('')
    const results=await Promise.all(held.map(booking=>supabase!.rpc('cancel_guest_booking',{p_booking_id:booking.id,p_token:sessionStorage.getItem(`guest_booking_token:${booking.id}`)})))
-   const failed=results.find(result=>result.error)
+   const failedError=results.find(result=>result.error)?.error
    setBusy(false)
-   if(failed){setError(failed.error.message);return}
+   if(failedError){setError(failedError.message);return}
    setMessage('Both court holds have been cancelled and released.')
    await load()
  }
