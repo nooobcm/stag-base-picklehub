@@ -96,6 +96,32 @@ body{min-width:0}
 .admin-date-actions .admin-date-today{min-width:54px}
 @media(max-width:1024px){.admin-filters{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:8px}.admin-booking-search{grid-column:1}.admin-date-nav{grid-column:2}.admin-filters select{width:100%;min-width:0}.admin-date-nav label input{width:110px}}
 @media(max-width:680px){.admin-filters{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.admin-booking-search{grid-column:1/-1}.admin-date-nav{grid-column:1/-1}.admin-date-nav{gap:6px;padding-left:8px}.admin-date-nav label input{width:125px}.admin-date-actions{gap:3px}}
+.admin-filters{align-items:start}
+.admin-date-calendar{min-width:0}
+.admin-date-calendar .booking-shared-date-picker{margin:0}
+.admin-date-calendar .availability-picker-head{padding:11px 13px}
+.admin-date-calendar .availability-picker-head h3{font-size:12px}
+.admin-date-calendar .availability-picker-head p{font-size:9px}
+.admin-date-calendar .availability-days{gap:5px;padding:8px}
+.admin-date-calendar .availability-day{flex:1;min-width:0}
+.admin-date-calendar .availability-arrow{flex:0 0 22px}
+.admin-date-calendar .admin-date-actions{justify-content:flex-end;margin-top:6px}
+@media(max-width:1024px){.admin-booking-search{grid-column:1/-1}.admin-date-calendar{grid-column:1/-1}}
+@media(max-width:680px){.admin-date-calendar{grid-column:1/-1}.admin-date-calendar .availability-picker-head{padding:10px}.admin-date-calendar .availability-days{gap:3px;padding:7px 5px}.admin-date-calendar .availability-day{min-height:46px}.admin-date-calendar .availability-arrow{flex-basis:19px}}
+.admin-filters{grid-template-columns:minmax(0,1.5fr) minmax(0,.8fr) minmax(0,.9fr)}
+.admin-day-schedules{gap:10px}
+.admin-timeline-date{margin:0}
+.admin-date-calendar-wide{width:100%;min-width:0;margin:0 0 4px}
+.admin-date-calendar-wide .availability-picker{width:100%;margin:0}
+.admin-date-calendar-wide .availability-picker-head{width:100%;box-sizing:border-box}
+.admin-date-calendar-wide .availability-days{width:100%;box-sizing:border-box;gap:8px;overflow:visible}
+.admin-date-calendar-wide .availability-day{min-width:0;min-height:64px}
+.admin-date-calendar-wide .availability-arrow{flex-basis:34px}
+.admin-date-calendar-wide .admin-date-actions{margin:0 0 0 auto;padding:8px 10px 0}
+@media(max-width:680px){.admin-filters{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.admin-date-calendar-wide .availability-picker-head{padding:11px 12px}.admin-date-calendar-wide .availability-picker-head>div{min-width:0}.admin-date-calendar-wide .availability-days{gap:4px;padding:9px 7px}.admin-date-calendar-wide .availability-day{min-width:0;min-height:50px;gap:3px}.admin-date-calendar-wide .availability-day small{font-size:8px}.admin-date-calendar-wide .availability-day b{font-size:14px}.admin-date-calendar-wide .availability-arrow{flex-basis:22px}.admin-date-calendar-wide .admin-date-actions{padding:7px 8px 0}}
+.availability-date-controls{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;flex:0 0 auto}
+.admin-date-calendar-wide .availability-date-controls .admin-date-actions{gap:5px;margin:0;padding:0}
+@media(max-width:680px){.admin-date-calendar-wide .availability-picker-head{align-items:flex-start;flex-wrap:wrap}.admin-date-calendar-wide .availability-date-controls{width:100%;gap:6px}.admin-date-calendar-wide .availability-date-controls .availability-month-button{margin-left:auto}.admin-date-calendar-wide .availability-date-controls .admin-date-actions{gap:4px}}
 @media(max-width:1024px){
   .booking-layout{width:100%;max-width:100%;padding:38px 20px 52px}
   .booking-grid{grid-template-columns:minmax(0,1fr);gap:16px;align-items:stretch}
@@ -358,3 +384,7 @@ body{min-width:0}
   .booking-group-item{padding:12px}
 }
 @media(max-width:380px){.dual-court-picker-card .availability-table.booking-hour-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.admin-day-schedule-heading>div:first-child>.eyebrow{font-size:13px;font-weight:800;letter-spacing:1.4px}
+.admin-day-schedule-heading b{font-size:18px;font-weight:750;line-height:1.25}
+.admin-day-schedule-heading>div:first-child small{font-size:14px;font-weight:650;line-height:1.35}
+@media(max-width:600px){.admin-day-schedule-heading>div:first-child>.eyebrow{font-size:12px;letter-spacing:1.2px}.admin-day-schedule-heading b{font-size:17px}.admin-day-schedule-heading>div:first-child small{font-size:13px}}
