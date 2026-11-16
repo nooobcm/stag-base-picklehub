@@ -311,3 +311,50 @@ body{min-width:0}
   .availability-time-label .booking-time-compact{display:inline}
 }
 @media(max-width:520px){.availability-time-label{font-size:10px;font-weight:800}}
+@media(max-width:600px){.admin-day-schedule .schedule-hours{grid-template-columns:minmax(76px,100px) minmax(0,1fr);column-gap:6px}}
+
+/* Customer booking can select hours from both courts in one grouped request. */
+.dual-court-picker{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;align-items:start;min-width:0}
+.dual-court-picker-courts{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start;min-width:0}
+.booking-shared-date-picker{margin:8px 0 2px}
+.booking-shared-date-picker .availability-picker-head{min-height:unset}
+.dual-court-picker-card{min-width:0;margin:8px 0 4px}
+.dual-court-picker-card .availability-picker-head{align-items:flex-start;min-height:62px;padding:12px}
+.dual-court-picker-card .availability-picker-head>div{min-width:0}
+.dual-court-picker-card .availability-picker-head h3{font-size:13px}
+.dual-court-picker-card .availability-picker-head p{font-size:9px;line-height:1.4}
+.dual-court-picker-card .availability-table.booking-hour-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:12px}
+.dual-court-picker-card .booking-hour-tile{min-width:0;min-height:58px;padding:7px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-radius:7px;font-size:9px;line-height:1.25}
+.booking-hour-time{font-size:9px;font-weight:800;white-space:nowrap;text-align:center}
+.booking-hour-time .booking-time-compact{display:none}
+.booking-hour-state{font-size:9px;font-weight:700;text-align:center}
+.dual-court-picker-card .availability-legend{justify-content:center;gap:8px;padding:10px 7px;font-size:8px}
+.dual-booking-summary{display:grid;gap:7px;padding:12px 0;border-bottom:1px solid #dce4d7}
+.dual-booking-summary>b{font-size:11px;color:#203529}
+.court-summary-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;font-size:10px;line-height:1.5}
+.court-summary-row>span{flex:0 0 auto;color:#737b74}
+.court-summary-row>strong{min-width:0;text-align:right;font-weight:600;overflow-wrap:anywhere}
+.court-summary-subtotal{padding-top:5px;border-top:1px solid #e2e8de;color:#203529;font-weight:700}
+.court-summary-subtotal>span,.court-summary-subtotal>strong{color:#203529;font-size:11px;font-weight:800}
+.booking-group-details{display:grid;gap:14px}
+.booking-group-list{display:grid;gap:12px}
+.booking-group-item{padding:16px;border:1px solid #e3e9df;border-radius:8px;background:#fbfcf9}
+.booking-group-item .details-top{margin:0 0 14px}
+.booking-group-item .details-facts{margin:0;padding-top:12px;border-top:1px solid #e4e9e1}
+.booking-group-total{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid #dce4d7;font-size:13px;font-weight:700}
+.booking-group-total b{font-size:19px}
+.booking-group-cancel{justify-self:center;margin:8px auto 0}
+@media(max-width:680px){
+  .dual-court-picker{grid-template-columns:minmax(0,1fr);gap:8px}
+  .dual-court-picker-courts{grid-template-columns:minmax(0,1fr);gap:8px}
+  .dual-court-picker-card .availability-picker-head{min-height:unset}
+  .dual-court-picker-card .availability-table.booking-hour-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;padding:10px}
+  .dual-court-picker-card .booking-hour-tile{min-height:56px;font-size:9px}
+  .booking-hour-time,.booking-hour-state{font-size:10px}
+  .booking-hour-time .booking-time-wide{display:none}
+  .booking-hour-time .booking-time-compact{display:inline}
+  .dual-booking-summary{grid-template-columns:minmax(0,1fr);align-items:stretch;gap:7px}
+  .court-summary-row{font-size:10px}
+  .booking-group-item{padding:12px}
+}
+@media(max-width:380px){.dual-court-picker-card .availability-table.booking-hour-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
