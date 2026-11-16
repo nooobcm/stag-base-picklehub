@@ -1,9 +1,10 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react'
-import { Link, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Clock3, Copy, CreditCard, Download, Facebook, FileCheck2, LockKeyhole, MapPin, Menu, ShieldCheck, Sparkles, Trash2, Trophy, UserRound, X } from 'lucide-react'
 import { supabase, type Booking, peso, hourLabel } from './lib/supabase'
 
 type User = { id: string; email?: string; user_metadata?: { full_name?: string } }
+type AdminState = { userId: string | null; status: 'none' | 'checking' | 'admin' | 'denied' | 'error' }
 type CourtRates = Record<number, number>
 const CourtPricingContext=createContext<{rates:CourtRates;refresh:()=>Promise<void>}>({rates:{1:250,2:350},refresh:async()=>{}})
 const useCourtPricing=()=>useContext(CourtPricingContext)
@@ -25,42 +26,92 @@ export default function App() {
   const navigate=useNavigate()
   const isAdminRoute=useLocation().pathname.startsWith('/admin')
   const [user, setUser] = useState<User | null>(null)
-  const [admin, setAdmin] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [adminState,setAdminState]=useState<AdminState>({userId:null,status:'none'})
+  const [authReady,setAuthReady]=useState(!supabase)
+  const authEventVersion=useRef(0)
+  const [authRetry,setAuthRetry]=useState(0)
+  const [authRestoreError,setAuthRestoreError]=useState('')
+  const [adminRetry,setAdminRetry]=useState(0)
+  const [signOutError,setSignOutError]=useState('')
   const [courtRates,setCourtRates]=useState<CourtRates>({1:250,2:350})
   const [bookingRulesPath,setBookingRulesPath]=useState<string|null>(null)
   const openBookingRules=(path:string)=>setBookingRulesPath(path)
   const configured = Boolean(supabase)
   async function refreshCourtRates(){if(!supabase)return;const {data}=await supabase.from('courts').select('id,hourly_rate').in('id',[1,2]);if(data){const values={1:250,2:350};for(const court of data)values[court.id as 1|2]=Number(court.hourly_rate)||values[court.id as 1|2];setCourtRates(values)}}
   useEffect(()=>{void refreshCourtRates()},[])
+  useEffect(()=>{
+    const preventMobileDrag=(event:DragEvent)=>{if(window.matchMedia('(max-width: 768px)').matches)event.preventDefault()}
+    document.addEventListener('dragstart',preventMobileDrag)
+    return()=>document.removeEventListener('dragstart',preventMobileDrag)
+  },[])
   useEffect(() => {
-    if (!supabase) { setLoading(false); return }
-    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user as User ?? null)).finally(() => setLoading(false))
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { setUser(session?.user as User ?? null) })
-    return () => subscription.unsubscribe()
-  }, [])
+    if (!supabase) { setAuthReady(true); return }
+    let active=true
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      authEventVersion.current+=1
+      if(!active)return
+      setUser(session?.user as User ?? null)
+      setAuthReady(true)
+      setSignOutError('')
+    })
+    const initialVersion=authEventVersion.current
+    void supabase.auth.getSession().then(({data,error})=>{
+      if(!active)return
+      // A newer auth event wins over this initial snapshot. A transient read
+      // error must not clear a session already restored by Supabase.
+      if(authEventVersion.current===initialVersion){
+        if(error)setAuthRestoreError('We could not restore the saved session because of a connection problem. Your session has not been cleared. Please retry.')
+        else{setAuthRestoreError('');setUser(data.session?.user as User ?? null)}
+      }
+      setAuthReady(true)
+    }).catch(()=>{if(active){if(authEventVersion.current===initialVersion)setAuthRestoreError('We could not restore the saved session because of a connection problem. Your session has not been cleared. Please retry.');setAuthReady(true)}})
+    return()=>{active=false;subscription.unsubscribe()}
+  }, [authRetry])
   useEffect(() => {
-    if (!user || !supabase) { setAdmin(false); return }
-    supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle().then(({ data }) => setAdmin(Boolean(data?.is_admin)))
-  }, [user])
-  const signOut = async () => { await supabase?.auth.signOut(); setUser(null); location.href = '/' }
-  if (loading) return <div className="loading-page"><div className="spinner" />Loading Stag Base…</div>
+    if (!user || !supabase) { setAdminState({userId:null,status:'none'}); return }
+    const userId=user.id
+    let active=true
+    setAdminState(current=>current.userId===userId&&current.status==='admin'?current:{userId,status:'checking'})
+    void supabase.from('profiles').select('is_admin').eq('id',userId).maybeSingle().then(({data,error})=>{
+      if(!active)return
+      setAdminState({userId,status:error?'error':data?.is_admin?'admin':'denied'})
+    },()=>{if(active)setAdminState({userId,status:'error'})})
+    return()=>{active=false}
+  }, [user?.id,adminRetry])
+  const admin=adminState.userId===user?.id&&adminState.status==='admin'
+  const retryAdminCheck=()=>setAdminRetry(value=>value+1)
+  const signOut = async () => {
+    if(!supabase)return
+    const {error}=await supabase.auth.signOut()
+    if(error){
+      const {data}=await supabase.auth.getSession()
+      if(data.session){setSignOutError('Could not complete sign out because the connection failed. Your session remains active; retry when your connection is restored.');return}
+    }
+    setSignOutError('')
+    setUser(null)
+    setAdminState({userId:null,status:'none'})
+    navigate('/',{replace:true})
+  }
+  if (!authReady) return <div className="loading-page"><div className="spinner" />Restoring your session…</div>
+  if(authRestoreError&&!user)return <main className="auth-page"><div className="auth-card"><div className="auth-icon"><LockKeyhole/></div><span className="eyebrow">SESSION RESTORE</span><h1>Connection issue.</h1><p>{authRestoreError}</p><button type="button" className="button button-dark full-button" onClick={()=>{setAuthReady(false);setAuthRetry(value=>value+1)}}>Retry session restore <ArrowRight size={16}/></button></div></main>
   return <CourtPricingContext.Provider value={{rates:courtRates,refresh:refreshCourtRates}}><BookingRulesContext.Provider value={openBookingRules}>
     <Header user={user} admin={admin} signOut={signOut} adminView={isAdminRoute} />
+    {signOutError&&<div className="auth-session-alert" role="alert">{signOutError}<button type="button" onClick={()=>void signOut()}>Retry sign out</button></div>}
     {!configured && <div className="setup-banner"><span>Demo preview</span> Connect Supabase to enable sign in, live availability and bookings. <a href="#setup">See setup</a></div>}
-    <Routes>
+    {admin&&!isAdminRoute?<Navigate to="/admin" replace/>:<Routes>
       <Route path="/" element={<Home />} />
       <Route path="/courts" element={<Courts />} />
-      <Route path="/login" element={<AuthPage mode="login" />} />
+      <Route path="/login" element={<AuthPage mode="login" user={user} authReady={authReady} adminState={adminState} retryAdminCheck={retryAdminCheck} />} />
       <Route path="/register" element={<AuthPage mode="register" />} />
       <Route path="/reset-password" element={<AuthPage mode="reset" />} />
       <Route path="/book" element={<BookingPage />} />
       <Route path="/booking/group/:groupId" element={<BookingGroupDetailsPage />} />
       <Route path="/booking/:id" element={<BookingDetailsPage user={user} />} />
       <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <AuthGate />} />
-      <Route path="/admin" element={user && admin ? <AdminDashboard /> : <AuthGate admin />} />
+      <Route path="/admin" element={<AdminRoute user={user} adminState={adminState} retryAdminCheck={retryAdminCheck} />} />
+      <Route path="/admin/*" element={<AdminRoute user={user} adminState={adminState} retryAdminCheck={retryAdminCheck} />} />
       <Route path="*" element={<Home />} />
-    </Routes>
+    </Routes>}
     {!isAdminRoute&&<Footer />}
     {bookingRulesPath&&<BookingRulesDialog onClose={()=>setBookingRulesPath(null)} onContinue={()=>{const path=bookingRulesPath;setBookingRulesPath(null);navigate(path)}}/>}
   </BookingRulesContext.Provider></CourtPricingContext.Provider>
@@ -116,17 +167,30 @@ function CourtCard({ number, name, kind, color, floor }: { number: string; name:
 function Step({ n, icon, title, text }: { n: string; icon: React.ReactNode; title: string; text: string }) { return <article className="step"><div className="step-top"><span className="step-icon">{icon}</span><span>{n}</span></div><h3>{title}</h3><p>{text}</p></article> }
 function Courts() { const {rates}=useCourtPricing();return <main className="page-shell"><div className="page-intro"><span className="eyebrow">TWO COURTS. LOTS OF GOOD TIMES.</span><h1>Find your <em>court.</em></h1><p>Pick the perfect spot, find a time that works, and we’ll see you at the baseline.</p></div><div className="court-cards"><CourtCard number="01" name="The Basic" kind="Court 1" color="court-green" floor="Rubberized"/><CourtCard number="02" name="The Pro" kind="Court 2" color="court-yellow" floor="Silica"/></div><div className="notice-card"><ShieldCheck/><span><b>Fair play, every day.</b><br/>Booking windows run 6 AM to 11 PM. Select your time to see live availability.</span><b>Court 1 ₱{rates[1]} · Court 2 ₱{rates[2]} / hour</b></div></main> }
 
-function AuthPage({ mode }: { mode: 'login' | 'register' | 'reset' }) {
+function AuthPage({ mode, user, authReady=true, adminState, retryAdminCheck }: { mode: 'login' | 'register' | 'reset'; user?:User|null; authReady?:boolean; adminState?:AdminState; retryAdminCheck?:()=>void }) {
   const navigate = useNavigate(); const [busy,setBusy] = useState(false); const [message,setMessage] = useState(''); const [error,setError] = useState('')
   const title = mode === 'login' ? 'Admin sign in.' : mode === 'register' ? 'Come on in.' : 'Reset your password.'
+  const isVerifiedAdmin=Boolean(user&&adminState?.userId===user.id&&adminState.status==='admin')
+  const waitingForAdminCheck=Boolean(mode==='login'&&user&&(!authReady||adminState?.userId!==user.id||adminState.status==='checking'))
+  useEffect(()=>{if(mode==='login'&&isVerifiedAdmin)navigate('/admin',{replace:true})},[mode,isVerifiedAdmin,navigate])
   async function submit(e: FormEvent<HTMLFormElement>) { e.preventDefault(); setError(''); setMessage(''); const data = Object.fromEntries(new FormData(e.currentTarget).entries()); if (!supabase) { setError('Connect Supabase in .env to enable accounts.'); return } setBusy(true)
-    try { if(mode==='login'){const {data:authData,error}=await supabase.auth.signInWithPassword({email:String(data.email),password:String(data.password)}); if(error) throw error; const {data:profile}=await supabase.from('profiles').select('is_admin').eq('id',authData.user.id).maybeSingle(); if(!profile?.is_admin){await supabase.auth.signOut();throw new Error('This account does not have administrator access.')} navigate('/admin')}
+    try { if(mode==='login'){const {data:authData,error}=await supabase.auth.signInWithPassword({email:String(data.email),password:String(data.password)}); if(error) throw error; const {data:profile,error:profileError}=await supabase.from('profiles').select('is_admin').eq('id',authData.user.id).maybeSingle(); if(profileError)throw new Error('Your sign-in succeeded, but administrator access could not be checked because the connection failed. Your session is still active; please retry.'); if(!profile?.is_admin){await supabase.auth.signOut();throw new Error('This account does not have administrator access.')} navigate('/admin',{replace:true})}
       else if(mode==='register'){if(data.password!==data.confirm) throw new Error('Passwords do not match.'); if(String(data.password).length<8) throw new Error('Use at least 8 characters for your password.'); const {error}=await supabase.auth.signUp({email:String(data.email),password:String(data.password),options:{data:{full_name:String(data.name)}}}); if(error) throw error; setMessage('Check your email to confirm your account, then come back to sign in.')}
       else {const {error}=await supabase.auth.resetPasswordForEmail(String(data.email),{redirectTo:`${location.origin}/login`}); if(error) throw error; setMessage('If an account exists for that email, a reset link is on its way.')} }
     catch(e){const message=e instanceof Error?e.message:'Something went wrong. Please try again.';setError(/failed to fetch|networkerror|load failed/i.test(message)?'Could not reach Supabase Auth. Check the project URL in .env, confirm the Supabase project is active, then restart the dev server.':message)} finally{setBusy(false)} }
+  if(waitingForAdminCheck)return <div className="loading-page"><div className="spinner"/>Verifying administrator access…</div>
+  if(mode==='login'&&user&&adminState?.userId===user.id&&adminState.status==='error')return <main className="auth-page"><div className="auth-card"><div className="auth-icon"><LockKeyhole/></div><span className="eyebrow">ADMIN ACCESS · STAG BASE PICKLE HUB</span><h1>Checking access.</h1><p>Your session is still active, but we couldn’t verify the administrator profile because of a connection problem.</p><button className="button button-dark full-button" type="button" onClick={retryAdminCheck}>Retry verification <ArrowRight size={16}/></button></div></main>
   return <main className="auth-page"><div className="auth-card"><div className="auth-icon"><img src="/stag-base-logo.png" alt="Stag Base logo"/></div><span className="eyebrow">{mode==='login'?'ADMIN ACCESS · STAG BASE PICKLE HUB':'STAG BASE PICKLE HUB'}</span><h1>{title}</h1><p>{mode==='login'?'Sign in to manage court bookings and payment reviews.':mode==='register'?'Create an account to book your first game.':'We’ll email you a link to get back in.'}</p><form onSubmit={submit} className="form-stack">{mode==='register'&&<label>Full name<input name="name" placeholder="e.g. Alex Rivera" required autoComplete="name"/></label>}<label>Email address<input name="email" placeholder="you@example.com" type="email" required autoComplete="email"/></label>{mode!=='reset'&&<label>Password<input name="password" placeholder="At least 8 characters" type="password" required minLength={8} autoComplete={mode==='login'?'current-password':'new-password'}/></label>}{mode==='register'&&<label>Confirm password<input name="confirm" placeholder="Type it again" type="password" required minLength={8} autoComplete="new-password"/></label>}{error&&<div className="alert alert-error">{error}</div>}{message&&<div className="alert alert-success"><Check size={17}/>{message}</div>}<button className="button button-dark full-button" disabled={busy}>{busy?'Please wait…':mode==='login'?'Log in':mode==='register'?'Create account':'Send reset link'} <ArrowRight size={16}/></button></form><div className="auth-links">{mode==='login'?<Link to="/reset-password">Forgot password?</Link>:<span>Already have an account? <Link to="/login">Log in</Link></span>}</div><div className="auth-safe"><LockKeyhole size={14}/> Your account is protected with secure sign-in.</div></div></main>
 }
 function AuthGate({admin=false}:{admin?:boolean}) { return <div className="auth-gate"><div className="auth-icon"><LockKeyhole/></div><h2>{admin?'Admin access required':'Log in to book a court'}</h2><p>{admin?'Sign in with an authorized administrator account.':'Create an account or sign in to see availability and manage your bookings.'}</p><Link className="button button-dark" to={`/login?next=${admin?'/admin':'/book'}`}>Continue to log in <ArrowRight size={16}/></Link></div> }
+
+function AdminRoute({user,adminState,retryAdminCheck}:{user:User|null;adminState:AdminState;retryAdminCheck:()=>void}){
+ if(!user)return <AuthGate admin/>
+ if(adminState.userId!==user.id||adminState.status==='checking')return <div className="loading-page"><div className="spinner"/>Verifying administrator access…</div>
+ if(adminState.status==='error')return <main className="page-shell"><div className="alert alert-error" role="alert">Could not verify administrator access because of a connection problem. Your session is still active.<button type="button" className="button button-outline" onClick={retryAdminCheck}>Retry</button></div></main>
+ if(adminState.status!=='admin')return <AuthGate admin/>
+ return <AdminDashboard/>
+}
 
 function BookingDatePicker({date,onDateChange,today,disabled,description='This date applies to both courts.',allowPast=false,headerActions}:{date:string;onDateChange:(date:string)=>void;today:string;disabled:boolean;description?:string;allowPast?:boolean;headerActions?:ReactNode}){
  const datePickerRef=useRef<HTMLInputElement>(null)
