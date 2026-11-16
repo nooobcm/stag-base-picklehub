@@ -36,7 +36,7 @@ Deno.serve(async request => {
   const { booking_id } = await request.json()
   if (!booking_id) return Response.json({ error: 'Booking id is required.' }, { status: 400, headers: cors })
   const { data: booking, error: bookingError } = await db.from('bookings')
-    .select('id,reference,court_id,court_selections,booking_date,start_hour,duration_hours,selected_hours,total_price,status,payment_status,customer_name,customer_email,confirmation_email_sent_at,profiles(full_name,email)')
+    .select('id,reference,court_id,court_selections,booking_date,start_hour,duration_hours,selected_hours,total_price,status,payment_status,payment_method,customer_name,customer_email,confirmation_email_sent_at,profiles(full_name,email)')
     .eq('id', booking_id).single()
   if (bookingError || !booking) return Response.json({ error: 'Booking not found.' }, { status: 404, headers: cors })
   if (booking.status !== 'confirmed' || !['verified', 'unpaid'].includes(booking.payment_status)) {
@@ -71,16 +71,24 @@ Deno.serve(async request => {
   const safeTime = escapeHtml(bookingTime)
   const paymentHtml = booking.payment_status === 'verified'
     ? `<p><b>Total paid:</b> ₱${Number(booking.total_price).toLocaleString('en-PH')}</p><p><b>Status:</b> Booked · Payment verified</p>`
-    : `<p><b>Amount due:</b> ₱${Number(booking.total_price).toLocaleString('en-PH')}</p><p><b>Status:</b> Booked · Payment due</p><p>You may pay later by GCash. Account name: <b>M* AN***A S.</b><br>GCash number: <b>09052692785</b></p>`
+    : booking.payment_method === 'cash'
+      ? `<p><b>Amount due:</b> ₱${Number(booking.total_price).toLocaleString('en-PH')}</p><p><b>Payment method:</b> Cash at the court</p><p>Please pay in cash when you arrive.</p>`
+      : `<p><b>Amount due:</b> ₱${Number(booking.total_price).toLocaleString('en-PH')}</p><p><b>Status:</b> Booked · Payment due</p><p>You may pay later by GCash. Account name: <b>M* AN***A S.</b><br>GCash number: <b>09052692785</b></p>`
   const paymentText = booking.payment_status === 'verified'
     ? `Total paid: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nStatus: Booked · Payment verified`
-    : `Amount due: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nStatus: Booked · Payment due\n\nYou may pay later by GCash. Account name: M* AN***A S.\nGCash number: 09052692785`
+    : booking.payment_method === 'cash'
+      ? `Amount due: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nPayment method: Cash at the court\nPlease pay in cash when you arrive.`
+      : `Amount due: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nStatus: Booked · Payment due\n\nYou may pay later by GCash. Account name: M* AN***A S.\nGCash number: 09052692785`
   const introHtml = booking.payment_status === 'verified'
     ? `Hi ${safeName}, your payment has been verified and your booking is confirmed.`
-    : `Hi ${safeName}, your booking is confirmed. Payment is not required to reserve now; you may pay later using the GCash details below.`
+    : booking.payment_method === 'cash'
+      ? `Hi ${safeName}, your booking is confirmed. Please pay in cash at the court when you arrive.`
+      : `Hi ${safeName}, your booking is confirmed. Payment is not required to reserve now; you may pay later using the GCash details below.`
   const introText = booking.payment_status === 'verified'
     ? `Hi ${customerName}, your payment has been verified and your booking is confirmed.`
-    : `Hi ${customerName}, your booking is confirmed. Payment is not required to reserve now; you may pay later using the GCash details below.`
+    : booking.payment_method === 'cash'
+      ? `Hi ${customerName}, your booking is confirmed. Please pay in cash at the court when you arrive.`
+      : `Hi ${customerName}, your booking is confirmed. Payment is not required to reserve now; you may pay later using the GCash details below.`
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json', 'Idempotency-Key': `booking-confirmation-${booking.id}` },
