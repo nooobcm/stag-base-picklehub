@@ -9,6 +9,9 @@ max_rows = 1000
 [db]
 major_version = 15
 
+[functions.admin-push-notifications]
+verify_jwt = false
+
 [studio]
 enabled = true
 

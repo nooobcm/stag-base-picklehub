@@ -1,0 +1,13 @@
+{
+  "name": "Stag Base Pickle Hub",
+  "short_name": "Stag Base",
+  "description": "Stag Base Pickle Hub administrator booking notifications",
+  "start_url": "/admin",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f8f5",
+  "theme_color": "#f7f8f5",
+  "icons": [
+    { "src": "/stag-base-logo.png", "sizes": "any", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
