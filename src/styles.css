@@ -279,7 +279,7 @@ body{min-width:0}
   .admin-day-schedule .schedule-hour{font-size:10px}
 }
 @media(max-width:900px){.admin-day-schedule .schedule-hour-cell.booking-span{grid-column:1/-1!important}}
-.admin-day-schedule .schedule-hours{grid-template-columns:minmax(100px,22%) minmax(0,1fr);grid-template-rows:repeat(17,minmax(48px,auto));gap:7px 10px;align-items:stretch}
+.admin-day-schedule .schedule-hours{grid-template-columns:150px minmax(0,1fr);grid-template-rows:repeat(17,minmax(48px,auto));gap:7px 8px;align-items:stretch}
 .admin-day-schedule .schedule-hour-cell{display:grid;grid-template-columns:minmax(120px,22%) minmax(0,1fr);gap:12px;align-items:stretch}
 .admin-day-schedule .schedule-hour-time{position:static;align-self:center;text-align:left;white-space:normal;font-size:12px;font-weight:700;line-height:1.35}
 .admin-day-schedule .schedule-hour{grid-column:2;min-height:48px;padding:9px 12px;font-size:13px;font-weight:700;line-height:1.35}
