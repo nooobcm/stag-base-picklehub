@@ -473,3 +473,10 @@ body{min-width:0}
 .schedule-hour.booked{display:flex;flex-direction:column;justify-content:center;gap:4px;padding:7px 10px;white-space:normal}.schedule-hour.booked>span{line-height:1.25}.schedule-hour-details{border:0;padding:2px 6px;background:transparent;color:inherit;font:inherit;font-size:11px;font-weight:700;line-height:1.2;text-decoration:underline;text-underline-offset:2px;cursor:pointer}.schedule-hour-details:hover{color:#6d2724}.schedule-hour-details:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:3px}.schedule-hour-customer{display:flex;align-items:baseline;justify-content:center;flex-wrap:wrap;gap:3px 7px}.schedule-hour-customer small{font:700 11px/1.2 'DM Sans',sans-serif;color:#963a36}
 
 .admin-transaction-proof{display:grid;justify-items:start;gap:3px;margin-top:2px}.admin-transaction-proof .text-button,.admin-transaction-proof>a{font-size:10px;line-height:1.3}.admin-transaction-proof>a{color:#527638;font-weight:700}.admin-transaction-proof small{color:#a33f37;font-size:9px}
+
+/* Keep pending approval actions the same width on desktop and mobile. */
+.proof-actions{display:grid;grid-template-columns:minmax(0,1fr);align-items:stretch;gap:10px;width:min(100%,340px);min-width:0}
+.proof-actions>.button{width:100%;min-height:44px;white-space:normal;text-align:center}
+.proof-review-actions{grid-template-columns:minmax(0,1fr);align-items:stretch;width:min(100%,340px);min-width:0}
+.proof-review-actions>label,.proof-review-actions>small,.proof-review-actions>.button-lime,.proof-review-actions>.button-reject{grid-column:1}
+.proof-review-actions>.button{width:100%;min-height:44px;padding:11px 14px;font-size:12px;white-space:normal;text-align:center}
