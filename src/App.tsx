@@ -238,7 +238,7 @@ function PlayTimePicker({date,court,slots,selectedSlots,slotStatuses,today,onSel
 function BookingPage() {
  const navigate=useNavigate()
  const {rates}=useCourtPricing()
- const [date,setDate]=useState(localDate(1))
+ const [date,setDate]=useState(localDate())
  const [selected,setSelected]=useState<Record<number,number[]>>({1:[],2:[]})
  const [statuses,setStatuses]=useState<Record<number,Record<number,string>>>({1:{},2:{}})
  const [busy,setBusy]=useState(false)
