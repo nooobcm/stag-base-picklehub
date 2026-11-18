@@ -130,6 +130,7 @@
 @media(max-width:680px){.availability-picker-head{padding:13px}.availability-days{gap:4px;padding:10px 7px;overflow-x:auto}.availability-arrow{flex-basis:20px}.availability-day{min-width:40px;min-height:52px}.availability-day b{font-size:14px}.availability-table{padding:6px 7px 0}.availability-table-heading,.availability-time-row{grid-template-columns:83px minmax(135px,1fr);gap:7px}.availability-time-label{font-size:9px}.availability-slot{min-height:38px;font-size:10px}.availability-legend{padding:10px 13px;gap:9px;font-size:8px}}
 .landing-admin-access{display:flex;justify-content:center;padding:0 22px 38px;background:#f7f8f5}.landing-admin-access .button{font-size:11px;color:#6f786e}
 .landing-social-links{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;padding:8px 22px 28px;background:#f7f8f5}.landing-social-links .button{font-size:11px}.landing-social-links .button-outline{background:#fff}
+.landing-social-links h2{flex:0 0 100%;margin:0 0 4px;text-align:center;font:800 clamp(30px,3vw,42px)/1.05 Manrope,sans-serif;letter-spacing:-.055em;color:var(--dark)}.landing-social-links h2 em{font-style:normal;color:#749c3e}
 @media(max-width:520px){.landing-social-links{display:grid;grid-template-columns:1fr;padding:8px 22px 26px}.landing-social-links .button{width:100%}}
 
 /* Enlarged interface requested for the full site */
