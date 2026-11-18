@@ -1,0 +1,363 @@
+# STAG-BASE: Booking Details and Partial Payment Management
+
+I want to improve the **Booking Details and Payment Management** feature of STAG-BASE.
+
+Use the attached screenshot as the visual reference for the Admin Booking Details payment section. Adapt the design to the existing STAG-BASE UI, colors, typography, and layout. Do not copy the screenshot blindly.
+
+## 1. First, inspect the existing implementation
+
+Before changing anything, inspect the following:
+
+- Existing booking creation and checkout flow.
+- Current payment method selection (Cash and GCash).
+- GCash payment proof upload and admin verification process.
+- Existing booking statuses and payment statuses.
+- Database tables, relationships, triggers, and RPC functions related to bookings and payments.
+- Admin Booking Details page and its existing payment-related components.
+- Existing booking confirmation and cancellation logic.
+
+Understand how the current system works before implementing this feature.
+
+Do not unnecessarily replace existing functionality. Reuse existing components, database structures, and logic where appropriate.
+
+If a database migration is required, prepare it safely and explain the changes before applying it. Do not deploy migrations or Edge Functions to production without my approval.
+
+---
+
+## 2. Customer booking flow
+
+The customer booking process should remain:
+
+1. Select the court, date, and time.
+2. Select a payment method.
+3. Click Book Now.
+4. The booking is submitted for admin verification.
+
+There are two payment methods:
+
+### A. Cash
+
+- Customers can book without uploading payment proof.
+- Cash bookings do not require a deposit.
+- The booking should be submitted for admin verification.
+- Once the admin approves the booking, its payment status should be **Unpaid** if no payment has been collected.
+- In Admin Booking Details, display only the **Balance Payment** section.
+- Do not display an empty Deposit section for cash bookings.
+
+The customer can pay the full amount or make partial payments when they arrive at the court.
+
+### B. GCash / InstaPay
+
+- Customers must upload their payment proof before submitting the booking.
+- The booking remains pending admin verification.
+- The admin must be able to view the uploaded proof before approving the booking.
+- The admin determines how much was actually received based on the submitted proof.
+
+There are two possible outcomes:
+
+**If the customer paid in full:**
+- The admin verifies the proof.
+- The admin records the amount received.
+- The amount received equals the total booking amount.
+- No additional payment method selection is necessary for this initial payment because the customer already selected GCash/InstaPay.
+- The booking can be approved.
+- Payment status becomes **Fully Paid**.
+- No outstanding balance remains.
+
+**If the customer paid only a deposit or partial amount:**
+- The admin verifies the proof.
+- The admin enters the actual amount received.
+- The system calculates the remaining balance automatically.
+- The admin can approve the booking even though it is not fully paid.
+- The booking becomes confirmed/booked.
+- Payment status becomes **Partially Paid**.
+- The customer must pay the remaining balance when they arrive at the court.
+
+Important: A partially paid booking must NOT remain pending simply because the customer has not paid the full amount. Once the admin verifies the proof and approves the booking, it must become a confirmed booking with a Partially Paid status.
+
+---
+
+## 3. Admin Booking Details payment interface
+
+Improve the existing Booking Details page using the attached screenshot as a reference.
+
+Display the following information:
+
+- Player
+- Court or selected courts
+- Booking time
+- Number of hours
+- Hourly rate
+- Total booking amount
+- Payment status
+
+### A. For GCash/InstaPay bookings
+
+Display two sections:
+
+**Deposit**
+
+- Amount Received
+- Payment Method (automatically GCash/InstaPay; no need for the admin to select it again)
+- Received By (admin/staff who verified or recorded the payment)
+- Display the calculated remaining balance.
+
+**Balance Payment**
+
+- Amount Received
+- Payment Method (Cash or GCash)
+- Received By (admin/staff)
+- Allow the admin to record an additional payment.
+
+The Deposit section should reflect the initial verified GCash/InstaPay payment. The Balance Payment section should be used for additional payments.
+
+### B. For Cash bookings
+
+Display only:
+
+**Balance Payment**
+
+- Amount Received
+- Payment Method (Cash or GCash)
+- Received By (admin/staff)
+- Allow the admin to record one or more payments.
+
+There should be no Deposit section because cash bookings do not require an initial deposit.
+
+---
+
+## 4. Automatic payment calculations
+
+The system must calculate payment totals automatically.
+
+Use these rules:
+
+**Total Amount**
+= Total booking fee.
+
+**Total Amount Received**
+= Sum of all successfully recorded payments.
+
+**Outstanding Balance**
+= Total Amount - Total Amount Received.
+
+**Payment Status**
+- Unpaid: No payment has been received.
+- Partially Paid: Some payment has been received, but the outstanding balance is greater than zero.
+- Fully Paid: The total amount received equals the total booking amount.
+
+Example:
+
+Total booking amount: ₱1,000
+
+Initial GCash deposit: ₱500
+
+Outstanding balance: ₱500
+
+The admin records another payment of ₱300.
+
+Total received: ₱800
+
+Outstanding balance: ₱200
+
+Payment status: Partially Paid
+
+The customer later pays the remaining ₱200.
+
+Total received: ₱1,000
+
+Outstanding balance: ₱0
+
+Payment status: Fully Paid
+
+These calculations must be based on actual payment records, not manually editable payment status labels.
+
+Prevent the system from accepting payments that exceed the outstanding balance unless the existing business rules explicitly support overpayments. Validate all amounts on the server/database side, not only in the frontend.
+
+Use proper decimal/numeric handling for Philippine peso amounts. Avoid floating-point calculation errors.
+
+---
+
+## 5. Recording additional balance payments
+
+When a customer arrives at the court, the admin should be able to record another payment from the Booking Details page.
+
+The process should be:
+
+1. Open the confirmed booking.
+2. View the outstanding balance.
+3. Enter the amount received.
+4. Select the payment method (Cash or GCash).
+5. Select or automatically identify the staff member who received the payment.
+6. Save payment details.
+7. Update the total amount received and outstanding balance automatically.
+8. Update the payment status to Partially Paid or Fully Paid.
+
+The admin must be able to record multiple additional payments until the outstanding balance reaches zero.
+
+Do not overwrite previous payments. Every payment must be stored as a separate transaction record so the system maintains a complete payment history.
+
+---
+
+## 6. Payment history and auditability
+
+Every recorded payment should preserve:
+
+- Payment amount
+- Payment method
+- Payment type (initial deposit or balance payment)
+- Payment date and time
+- Staff/admin who received or verified the payment
+- Related booking ID
+- Payment proof reference, when applicable
+- Verification/recording status
+
+The admin should be able to review the payment history for a booking.
+
+Previous payment records must not disappear when another payment is added.
+
+Avoid allowing an admin to accidentally record the same payment twice. Use appropriate validation and database constraints where necessary.
+
+---
+
+## 7. Important booking and payment rules
+
+Keep booking status separate from payment status.
+
+Examples:
+
+| Booking status | Payment status |
+|---|---|
+| Pending verification | Unpaid or pending verification |
+| Confirmed | Unpaid |
+| Confirmed | Partially Paid |
+| Confirmed | Fully Paid |
+| Cancelled | Preserve payment history and handle refunds according to existing rules |
+
+Do not automatically cancel a confirmed booking simply because it has an outstanding balance.
+
+Do not mark a booking as fully paid just because the admin approves it. It must only become Fully Paid when the sum of recorded payments equals the total booking amount.
+
+For a GCash booking, approval of the proof and confirmation of the booking must be handled correctly even when the verified payment is only partial.
+
+For a Cash booking, the admin must be able to approve the booking without requiring a deposit or payment proof.
+
+---
+
+## 8. UI and user experience
+
+Use the screenshot as a design reference.
+
+The interface should clearly show:
+
+- Total Amount
+- Deposit (GCash/InstaPay bookings only)
+- Balance Payment
+- Remaining Balance
+- Outstanding Balance
+- Payment Status
+
+Use a clear visual distinction between Partially Paid, Fully Paid, and Unpaid.
+
+The Save Payment Details button should validate the entered amount and required fields before saving.
+
+After saving:
+- Update the payment information immediately.
+- Update the payment status.
+- Update the outstanding balance.
+- Ensure the admin dashboard reflects the latest information without requiring a manual refresh.
+- Show a clear success or error message.
+
+Make the layout responsive for desktop and mobile devices.
+
+---
+
+## 9. Database and implementation requirements
+
+Before implementing, determine whether the current payment schema can support:
+
+- One initial deposit.
+- Multiple additional balance payments.
+- Different payment methods for individual payments.
+- Payment history.
+- Staff attribution.
+- Automatic calculation of total paid and outstanding balance.
+
+If the existing database structure is insufficient, propose a safe database migration.
+
+Important technical requirements:
+
+- Preserve existing booking IDs and customer accounts.
+- Preserve existing booking records and payment history.
+- Do not break the current GCash proof upload and verification process.
+- Ensure a booking containing both Court 1 and Court 2 is still treated as one parent booking with one payment total.
+- Avoid duplicate payment records.
+- Use secure database policies and server-side validation.
+- Ensure only authorized admins/staff can verify proofs and record payments.
+- Use database transactions or secure RPC functions where needed to prevent inconsistent payment totals during simultaneous updates.
+- Preserve existing Supabase Realtime functionality.
+
+---
+
+## 10. Testing requirements
+
+Test the following scenarios before considering the feature complete:
+
+1. Cash booking approved without a deposit.
+2. Cash booking displays only Balance Payment.
+3. Cash booking with no payment displays Unpaid.
+4. GCash booking with valid proof paid in full.
+5. GCash booking with partial payment approved successfully.
+6. GCash booking displays both Deposit and Balance Payment.
+7. Adding a partial balance payment updates the outstanding balance.
+8. Adding the final balance payment changes the status to Fully Paid.
+9. Multiple balance payments are recorded separately.
+10. Payment history remains intact after multiple transactions.
+11. Invalid amounts, zero amounts, and payments exceeding the outstanding balance are rejected.
+12. Unauthorized users cannot record payments or verify proofs.
+13. Existing booking creation, cancellation, and admin verification features continue to work.
+14. A booking with both courts is charged and paid as one parent booking, not as two separate booking payments.
+15. Realtime updates work correctly without requiring a page refresh.
+
+Run the existing tests, add tests for the new payment workflow, and report any failures.
+
+---
+
+## 11. Implementation approach
+
+Work in phases:
+
+**Phase 1:** Inspect the existing codebase and database schema. Report the current implementation and identify exactly what needs to change.
+
+**Phase 2:** Propose the database changes and payment workflow. Explain how existing records will be preserved.
+
+**Phase 3:** Implement the database and backend logic safely.
+
+**Phase 4:** Implement the Admin Booking Details UI and payment history.
+
+**Phase 5:** Test all Cash, GCash, partial-payment, and fully-paid scenarios.
+
+**Phase 6:** Summarize modified files, migrations, tests, and any remaining concerns.
+
+Do not skip the inspection phase. Do not make unrelated changes or redesign other parts of the application.
+
+**Start with Phase 1 only. Do not modify files yet. Show me your findings and proposed implementation before proceeding.**
+
+
+### Critical restriction: Preserve the existing customer booking process
+
+Do NOT modify, redesign, or change the existing customer-facing booking process.
+
+Keep the current:
+- Court, date, and time selection.
+- Booking availability and 10-minute checkout hold.
+- Cash and GCash payment method selection.
+- GCash payment proof upload.
+- Book Now button and submission behavior.
+- Customer booking confirmation and existing booking flow.
+
+The new feature must primarily affect the Admin Booking Details page, payment verification, payment recording, and payment status calculations.
+
+Only make customer-facing changes if absolutely necessary for compatibility with the new payment logic. If any customer-facing change is necessary, explain it and obtain approval before implementing it.
+
+Do not break existing customer bookings or require customers to follow a new booking process.

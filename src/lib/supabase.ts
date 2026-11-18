@@ -21,5 +21,5 @@ export type Booking = {
   profiles?: { full_name: string; email: string } | null
   payments?: { status: string; rejection_reason: string | null; submitted_at: string }[]
 }
-export const peso = (value: number) => `₱${Number(value).toLocaleString('en-PH')}`
+export const peso = (value: number) => `₱${Number(value).toLocaleString('en-PH',{minimumFractionDigits:0,maximumFractionDigits:2})}`
 export const hourLabel = (hour: number) => `${hour % 12 || 12}:00 ${hour < 12 ? 'AM' : 'PM'}`

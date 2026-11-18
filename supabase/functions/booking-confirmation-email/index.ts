@@ -39,13 +39,16 @@ Deno.serve(async request => {
     .select('id,reference,court_id,court_selections,booking_date,start_hour,duration_hours,selected_hours,total_price,status,payment_status,payment_method,customer_name,customer_email,confirmation_email_sent_at,profiles(full_name,email)')
     .eq('id', booking_id).single()
   if (bookingError || !booking) return Response.json({ error: 'Booking not found.' }, { status: 404, headers: cors })
-  if (booking.status !== 'confirmed' || !['verified', 'unpaid'].includes(booking.payment_status)) {
+  if (booking.status !== 'confirmed') {
     return Response.json({ error: 'Only confirmed bookings can receive a confirmation email.' }, { status: 409, headers: cors })
   }
   if (booking.confirmation_email_sent_at) return Response.json({ sent: true, already_sent: true }, { headers: cors })
 
   const recipient = booking.customer_email || booking.profiles?.email
   if (!recipient) return Response.json({ error: 'No customer email is saved for this booking.' }, { status: 422, headers: cors })
+  const { data: paymentRows } = await db.from('booking_payment_transactions').select('amount').eq('booking_id', booking.id)
+  const totalReceived = (paymentRows || []).reduce((sum, payment) => sum + Number(payment.amount || 0), 0)
+  const remainingBalance = Math.max(0, Number(booking.total_price) - totalReceived)
   const customerName = booking.customer_name || booking.profiles?.full_name || 'there'
   const selections: { court_id:number; hours:number[] }[] = booking.court_selections?.length
     ? booking.court_selections
@@ -69,23 +72,31 @@ Deno.serve(async request => {
   const safeCourt = escapeHtml(courtName)
   const safeDate = escapeHtml(dateLabel)
   const safeTime = escapeHtml(bookingTime)
-  const paymentHtml = booking.payment_status === 'verified'
-    ? `<p><b>Total paid:</b> ₱${Number(booking.total_price).toLocaleString('en-PH')}</p><p><b>Status:</b> Booked · Payment verified</p>`
+  const paymentHtml = booking.payment_status === 'verified' || booking.payment_status === 'fully_paid'
+    ? `<p><b>Total paid:</b> ₱${totalReceived.toLocaleString('en-PH')}</p><p><b>Status:</b> Booked · Fully paid</p>`
+    : booking.payment_status === 'partially_paid'
+      ? `<p><b>Deposit received:</b> ₱${totalReceived.toLocaleString('en-PH')}</p><p><b>Remaining balance:</b> ₱${remainingBalance.toLocaleString('en-PH')}</p><p><b>Status:</b> Booking confirmed with deposit</p>`
     : booking.payment_method === 'cash'
       ? `<p><b>Amount due:</b> ₱${Number(booking.total_price).toLocaleString('en-PH')}</p><p><b>Payment method:</b> Cash at the court</p><p>Please pay in cash when you arrive.</p>`
       : `<p><b>Amount due:</b> ₱${Number(booking.total_price).toLocaleString('en-PH')}</p><p><b>Status:</b> Booked · Payment due</p><p>You may pay later by GCash. Account name: <b>M* AN***A S.</b><br>GCash number: <b>09052692785</b></p>`
-  const paymentText = booking.payment_status === 'verified'
-    ? `Total paid: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nStatus: Booked · Payment verified`
+  const paymentText = booking.payment_status === 'verified' || booking.payment_status === 'fully_paid'
+    ? `Total paid: ₱${totalReceived.toLocaleString('en-PH')}\nStatus: Booked · Fully paid`
+    : booking.payment_status === 'partially_paid'
+      ? `Deposit received: ₱${totalReceived.toLocaleString('en-PH')}\nRemaining balance: ₱${remainingBalance.toLocaleString('en-PH')}\nStatus: Booking confirmed with deposit`
     : booking.payment_method === 'cash'
       ? `Amount due: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nPayment method: Cash at the court\nPlease pay in cash when you arrive.`
       : `Amount due: ₱${Number(booking.total_price).toLocaleString('en-PH')}\nStatus: Booked · Payment due\n\nYou may pay later by GCash. Account name: M* AN***A S.\nGCash number: 09052692785`
-  const introHtml = booking.payment_status === 'verified'
+  const introHtml = booking.payment_status === 'verified' || booking.payment_status === 'fully_paid'
     ? `Hi ${safeName}, your payment has been verified and your booking is confirmed.`
+    : booking.payment_status === 'partially_paid'
+      ? `Hi ${safeName}, your booking is confirmed with a deposit. The remaining balance is due at the court.`
     : booking.payment_method === 'cash'
       ? `Hi ${safeName}, your booking is confirmed. Please pay in cash at the court when you arrive.`
       : `Hi ${safeName}, your booking is confirmed. Payment is not required to reserve now; you may pay later using the GCash details below.`
-  const introText = booking.payment_status === 'verified'
+  const introText = booking.payment_status === 'verified' || booking.payment_status === 'fully_paid'
     ? `Hi ${customerName}, your payment has been verified and your booking is confirmed.`
+    : booking.payment_status === 'partially_paid'
+      ? `Hi ${customerName}, your booking is confirmed with a deposit. The remaining balance is due at the court.`
     : booking.payment_method === 'cash'
       ? `Hi ${customerName}, your booking is confirmed. Please pay in cash at the court when you arrive.`
       : `Hi ${customerName}, your booking is confirmed. Payment is not required to reserve now; you may pay later using the GCash details below.`

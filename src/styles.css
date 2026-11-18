@@ -11,6 +11,72 @@
 .admin-stats{grid-template-columns:repeat(4,minmax(0,1fr))}.availability-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:-20px 0 40px}.availability-cards>div,.report-cards>div{display:grid;gap:7px;padding:15px 17px;background:#fff;border:1px solid #e5e9e2;border-radius:8px}.availability-cards .eyebrow{font-size:8px}.availability-cards b{font:700 20px Manrope;color:#2a3a2d}.availability-cards small{font-size:10px;color:#879084}.report-date-fields{display:flex;gap:8px}.report-date-fields label{display:grid;gap:5px;font-size:9px;color:#788174}.report-date-fields input{height:34px;border:1px solid #e0e5dd;border-radius:5px;background:#fff;padding:0 8px;font-size:10px}.report-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.report-cards small,.admin-detail-grid small{font:500 8px 'DM Mono';letter-spacing:.6px;color:#899286}.report-cards b{font:700 18px Manrope;color:#2a3a2d}.admin-section>.tool-help{margin-top:12px}.admin-modal-backdrop{position:fixed;inset:0;z-index:20;background:#15231dcc;display:grid;place-items:center;padding:20px}.admin-modal{position:relative;width:min(700px,100%);max-height:min(88vh,900px);overflow:auto;padding:28px;background:#fbfcf9;border-radius:12px;box-shadow:0 22px 70px #0004}.admin-modal-close{position:absolute;top:15px;right:15px;border:0;background:#eef2e9;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;color:#40533a}.admin-modal h2{font:700 25px Manrope;margin:9px 0}.admin-modal h3{font:700 15px Manrope;margin:24px 0 10px}.admin-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:18px 0;padding:16px 0;border-top:1px solid #e8ece4;border-bottom:1px solid #e8ece4}.admin-detail-grid>div{display:grid;gap:5px}.admin-detail-grid b{font-size:11px;color:#30402f}.admin-detail-grid span,.admin-history-item span{font-size:10px;color:#828b80}.admin-history-list{display:grid;gap:7px}.admin-history-item{display:grid;gap:6px;padding:11px 12px;background:white;border:1px solid #e7ebe4;border-radius:6px}.admin-history-item b{font-size:11px;color:#334332;text-transform:capitalize}.admin-history-item small,.admin-empty-note{font-size:10px;color:#868e83}.admin-modal .loading-inline{min-height:70px;padding:14px}
 @media(max-width:900px){.admin-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.report-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:680px){.admin-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.availability-cards{margin:-10px 0 30px}.report-cards{grid-template-columns:1fr 1fr}.report-date-fields{width:100%}.report-date-fields label{flex:1;min-width:0}.report-date-fields input{width:100%}.admin-modal{padding:22px 17px}.admin-detail-grid{grid-template-columns:1fr 1fr}.admin-section>.dashboard-heading:has(.report-date-fields){display:grid;align-items:start;gap:10px}}
+
+/* Admin booking payment details */
+.admin-booking-payment-modal{width:min(820px,100%);padding:28px;background:#fff;max-height:min(92dvh,920px)}
+.admin-modal-title-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-right:38px}
+.admin-modal-title-row h2{margin:6px 0 0}
+.payment-status-pill{display:inline-flex;align-items:center;padding:8px 14px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap;text-transform:capitalize}
+.payment-status-pill.unpaid{background:#f0f2ee;color:#586257}.payment-status-pill.partially-paid{background:#effbbd;color:#526b1f}.payment-status-pill.fully-paid{background:#ddf8a2;color:#365323}
+.admin-booking-summary-grid{display:grid;grid-template-columns:1fr 1fr 1.25fr;gap:0;margin:18px 0 12px;padding:14px 8px;background:#f2f3f7;border-radius:10px}
+.admin-booking-summary-grid>div{display:grid;align-content:start;gap:5px;padding:0 14px;border-right:1px solid #d5d9e1;min-width:0}.admin-booking-summary-grid>div:last-child{border:0}
+.admin-booking-summary-grid small,.admin-transaction-row small{color:#737b8a;font:600 10px 'DM Mono',monospace;letter-spacing:.6px;text-transform:uppercase}
+.admin-booking-summary-grid b{font-size:15px;overflow-wrap:anywhere}.admin-booking-summary-grid span{font-size:12px;color:var(--muted)}
+.admin-total-strip,.admin-outstanding-strip{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 15px;background:#effbbd;border-radius:8px;font-size:16px;font-weight:800}
+.admin-total-strip b,.admin-outstanding-strip b{font:800 22px Manrope,sans-serif}
+.admin-payment-meta{display:flex;justify-content:space-between;gap:12px;padding:12px 2px;color:var(--muted);font-size:12px}.admin-payment-meta b{display:block;margin-top:4px;color:var(--ink);font-size:14px;text-transform:capitalize}
+.admin-payment-panel{margin:14px 0;padding:14px;border:1px solid #d7dce3;border-radius:12px;background:#fff}
+.admin-payment-panel h3{display:inline-flex;margin:0 0 12px;padding:6px 14px;border-radius:999px;background:#ddf8a2;color:#1c2c1e;font-size:14px}
+.admin-remaining-strip{margin-top:12px;padding:8px 12px;font-size:14px}.admin-remaining-strip b{font-size:19px}
+.admin-ledger-history{display:grid;gap:8px;margin-bottom:10px}
+.admin-transaction-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:12px;background:#f7f8fa;border-radius:8px}.admin-transaction-row>div{display:grid;gap:4px;min-width:0}.admin-transaction-row b{font-size:12px;overflow-wrap:anywhere}
+.admin-payment-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.admin-payment-form label,.proof-review-actions label{display:grid;gap:6px;color:#344033;font-size:12px;font-weight:700}.admin-payment-form input,.admin-payment-form select,.proof-review-actions input{width:100%;min-width:0;height:42px;padding:0 12px;border:1px solid #c8ced8;border-radius:7px;background:#fff;color:var(--ink)}.admin-payment-form label:nth-child(3){grid-column:1/-1}.admin-payment-form input[readonly]{background:#f4f6f2;color:#667064}.admin-outstanding-strip{grid-column:1/-1;background:#f2f3f7;font-size:14px}.admin-outstanding-strip b{font-size:18px}.admin-payment-form>.button{grid-column:1/-1;min-height:44px;font-size:14px}.admin-payment-success,.admin-payment-error{grid-column:1/-1;margin:0;font-size:12px}.admin-payment-success{color:#397236}.admin-payment-error{color:#a33f37}.admin-payment-complete{display:flex;align-items:center;gap:8px;margin:4px 0;color:#416d2b;font-size:13px;font-weight:700}
+.proof-review-actions{display:grid;grid-template-columns:1fr 1fr;align-items:end;min-width:min(360px,100%)}.proof-review-actions>label,.proof-review-actions>small,.proof-review-actions>.button-lime{grid-column:1/-1}.proof-review-actions>small{font-size:11px;color:var(--muted)}.proof-review-actions>.button{flex:initial}
+@media(max-width:680px){.admin-booking-payment-modal{padding:22px 15px;max-height:94dvh}.admin-booking-summary-grid{grid-template-columns:1fr 1fr;gap:12px}.admin-booking-summary-grid>div{padding:0 8px;border:0}.admin-booking-summary-grid>div:last-child{grid-column:1/-1;border-top:1px solid #d5d9e1;padding-top:10px}.admin-total-strip{padding:9px 12px;font-size:14px}.admin-total-strip b{font-size:19px}.admin-payment-meta{font-size:11px}.admin-transaction-row{grid-template-columns:1fr 1fr}.admin-payment-form{grid-template-columns:1fr}.admin-payment-form label:nth-child(3),.admin-outstanding-strip,.admin-payment-form>.button,.admin-payment-success,.admin-payment-error{grid-column:1}.proof-review-actions{width:100%;min-width:0}.proof-review-actions>.button{padding:10px 8px;font-size:11px}}
+
+/* Keep booking details compact and inside the visible viewport. */
+.admin-booking-payment-modal{box-sizing:border-box;width:min(560px,calc(100% - 32px));height:min(70vh,620px)!important;max-height:calc(100vh - 32px)!important;min-height:0!important;padding:18px;overscroll-behavior:contain}
+.admin-booking-payment-modal h3{margin:17px 0 8px}
+.admin-booking-summary-grid{margin:12px 0 9px;padding:11px 6px}
+.admin-booking-summary-grid>div{padding:0 11px}
+.admin-total-strip{padding:8px 12px;font-size:14px}
+.admin-total-strip b{font-size:19px}
+.admin-payment-meta{padding:9px 2px}
+.admin-payment-panel{margin:10px 0;padding:11px}
+.admin-payment-panel h3{margin-bottom:9px}
+.admin-transaction-row{gap:8px;padding:9px}
+.admin-payment-form{gap:9px}
+.admin-modal-backdrop:has(.admin-booking-payment-modal){display:flex;align-items:center;justify-content:center;overflow:hidden;padding:12px;overscroll-behavior:contain}
+.admin-booking-payment-modal{flex:0 0 auto;margin:0;overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}
+@media(max-width:680px){
+ .admin-modal-backdrop:has(.admin-booking-payment-modal){align-items:center;padding:max(8px,env(safe-area-inset-top)) 8px max(8px,env(safe-area-inset-bottom));overflow:hidden}
+ .admin-booking-payment-modal{width:min(100%,520px);height:68vh!important;max-height:calc(100vh - 24px)!important;min-height:0!important;margin:0;padding:16px 13px;border-radius:10px}
+ .admin-modal-title-row{align-items:flex-start;flex-direction:column;gap:6px;padding-right:32px}
+ .admin-modal-title-row h2{font-size:21px;margin:3px 0 0}
+ .payment-status-pill{padding:5px 10px;font-size:11px}
+ .admin-booking-summary-grid{gap:9px;margin:10px 0 8px;padding:10px 5px}
+ .admin-booking-summary-grid>div{padding:0 7px}
+ .admin-booking-summary-grid small,.admin-transaction-row small{font-size:9px}
+ .admin-booking-summary-grid b{font-size:13px;line-height:1.25}
+ .admin-booking-summary-grid span{font-size:11px;line-height:1.3}
+ .admin-payment-meta{font-size:10px}
+ .admin-payment-meta b{font-size:12px}
+ .admin-payment-panel{margin:8px 0;padding:10px;border-radius:9px}
+ .admin-payment-panel h3{font-size:12px;padding:5px 11px;margin-bottom:8px}
+ .admin-transaction-row{gap:7px;padding:8px}
+ .admin-transaction-row b{font-size:11px;line-height:1.25}
+ .admin-payment-form{gap:8px}
+ .admin-payment-form label{font-size:11px}
+ .admin-payment-form input,.admin-payment-form select{height:40px;font-size:16px}
+ .admin-payment-form>.button{min-height:40px;font-size:12px}
+ .admin-booking-payment-modal .admin-history-item{padding:9px}
+}
+@media(max-width:360px){
+ .admin-booking-payment-modal{padding:16px 10px}
+ .admin-booking-summary-grid{grid-template-columns:1fr 1fr}
+ .admin-total-strip{font-size:12px}.admin-total-strip b{font-size:17px}
+ .admin-payment-meta{gap:6px}
+}
 .admin-court-schedule{margin-top:25px}.admin-court-schedule .dashboard-heading h3{font:700 19px Manrope;margin:6px 0 0}.admin-booking-row{grid-template-columns:53px minmax(0,1fr) 220px}.booking-customer-name{margin-top:5px!important;color:#65705f!important}.booking-customer-name b{color:#344332}.admin-card-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:4px}.admin-view-link{display:inline-flex;align-items:center;gap:5px;border:0;background:none;padding:0;color:#7d2635;font-size:10px;font-weight:700}.admin-view-link:hover{text-decoration:underline}.admin-booking-row .booking-price{align-self:center}
 @media(max-width:680px){.admin-booking-row{grid-template-columns:42px minmax(0,1fr) auto}.admin-booking-row .booking-price{grid-column:3;grid-row:1;max-width:130px}.admin-card-actions{gap:8px;flex-wrap:wrap}.admin-view-link{font-size:9px}}
 .brand-mark{width:48px;height:48px;border-radius:8px;background:transparent;overflow:hidden}.brand-mark img{display:block;width:100%;height:100%;object-fit:cover;border-radius:8px}.brand{gap:9px;font-size:20px;letter-spacing:-.8px}.brand small{font-size:8px;letter-spacing:1.65px}.auth-icon{width:68px;height:68px;background:transparent;border-radius:8px;overflow:hidden;margin-bottom:15px}.auth-icon img{width:100%;height:100%;object-fit:cover}.brand-dot{color:#159aa2}
@@ -405,3 +471,5 @@ body{min-width:0}
 .admin-pricing-tools{margin:0 0 36px}.admin-pricing-tools details{overflow:hidden}.admin-pricing-tools .admin-pricing{margin:0;border:0;border-top:1px solid #edf0e9;border-radius:0;padding:17px 20px}
 @media(max-width:680px){.admin-pricing-tools .admin-pricing{padding:15px}}
 .schedule-hour.booked{display:flex;flex-direction:column;justify-content:center;gap:4px;padding:7px 10px;white-space:normal}.schedule-hour.booked>span{line-height:1.25}.schedule-hour-details{border:0;padding:2px 6px;background:transparent;color:inherit;font:inherit;font-size:11px;font-weight:700;line-height:1.2;text-decoration:underline;text-underline-offset:2px;cursor:pointer}.schedule-hour-details:hover{color:#6d2724}.schedule-hour-details:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:3px}.schedule-hour-customer{display:flex;align-items:baseline;justify-content:center;flex-wrap:wrap;gap:3px 7px}.schedule-hour-customer small{font:700 11px/1.2 'DM Sans',sans-serif;color:#963a36}
+
+.admin-transaction-proof{display:grid;justify-items:start;gap:3px;margin-top:2px}.admin-transaction-proof .text-button,.admin-transaction-proof>a{font-size:10px;line-height:1.3}.admin-transaction-proof>a{color:#527638;font-weight:700}.admin-transaction-proof small{color:#a33f37;font-size:9px}
