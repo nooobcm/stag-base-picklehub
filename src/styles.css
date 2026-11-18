@@ -590,6 +590,12 @@ body{min-width:0}
 .details-page-panel .payment-step-title{font-size:10px}
 .details-page-panel .proof-upload-button,.details-page-panel .full-button{min-height:38px;padding:9px 12px;font-size:11px}
 .details-page-panel .details-status{padding:10px;font-size:10px}
+.booking-copy-reminder{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 11px;padding:10px 11px;border:1px solid #d8e8b8;border-radius:9px;background:#f2f8e4}
+.booking-copy-reminder>div{display:grid;gap:3px;min-width:0}
+.booking-copy-reminder>div>b{color:#273b2a;font:700 11px Manrope,sans-serif}
+.booking-copy-reminder>div>span{color:#697965;font-size:9px;line-height:1.35}
+.booking-copy-reminder .copy-booking-details{min-height:36px;padding:8px 11px;border-radius:6px;background:#193426;color:#fff;font-size:10px;text-decoration:none;white-space:nowrap}
+.booking-copy-reminder .copy-booking-details:hover{background:#284a32;text-decoration:none}
 .details-page-panel>.hold-timer-holder{position:sticky;top:-20px;z-index:5;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:-20px -21px 8px;padding:9px 15px;background:#173124;color:#e4f4da;border-bottom:1px solid #314d34}
 .hold-timer-label{font:700 8px 'DM Mono',monospace;letter-spacing:1px;color:#d3e7bf}
 .hold-timer-message{justify-self:end;color:#d2dfcc;font-size:9px;text-align:right}
@@ -599,7 +605,7 @@ body{min-width:0}
 .details-page-panel .hold-timer-holder.expired .hold-clock{border-color:#ff766c;color:#ffe0dd;box-shadow:0 0 8px #ff625c80;animation:none}
 @keyframes hold-timer-breathe{0%,100%{transform:scale(1);box-shadow:0 0 6px #c8ff4980,0 0 15px #9bff3852}50%{transform:scale(1.035);box-shadow:0 0 10px #c8ff49c9,0 0 22px #9bff388c}}
 @media(prefers-reduced-motion:reduce){.details-page-panel .hold-clock{animation:none}}
-@media(max-width:680px){.details-page-backdrop{padding:12px}.details-page-panel{width:min(416px,calc(100vw - 24px));max-height:min(72dvh,calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));padding:16px 14px}.details-page-panel .page-intro h1{font-size:21px}.details-page-panel .details-facts{grid-template-columns:1fr 1fr}.details-page-panel .details-facts>div:first-child{grid-column:1/-1}.details-page-panel>.hold-timer-holder{top:-16px;grid-template-columns:1fr auto;gap:5px;margin:-16px -14px 7px;padding:8px 11px}.details-page-panel .hold-timer-label{font-size:7px}.details-page-panel .hold-timer-message{grid-column:1/-1;justify-self:center;text-align:center;font-size:8px}.details-page-panel .hold-clock{grid-column:2;grid-row:1;min-width:94px;padding:5px 10px;font-size:12px}.details-page-panel .hold-clock b{font-size:12px}}
+@media(max-width:680px){.details-page-backdrop{padding:12px}.details-page-panel{width:min(416px,calc(100vw - 24px));max-height:min(72dvh,calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));padding:16px 14px}.details-page-panel .page-intro h1{font-size:21px}.details-page-panel .details-facts{grid-template-columns:1fr 1fr}.details-page-panel .details-facts>div:first-child{grid-column:1/-1}.details-page-panel>.hold-timer-holder{top:-16px;grid-template-columns:1fr auto;gap:5px;margin:-16px -14px 7px;padding:8px 11px}.details-page-panel .hold-timer-label{font-size:7px}.details-page-panel .hold-timer-message{grid-column:1/-1;justify-self:center;text-align:center;font-size:8px}.details-page-panel .hold-clock{grid-column:2;grid-row:1;min-width:94px;padding:5px 10px;font-size:12px}.details-page-panel .hold-clock b{font-size:12px}.booking-copy-reminder{align-items:stretch;flex-direction:column}.booking-copy-reminder .copy-booking-details{width:100%;justify-content:center}}
 .booking-summary-close{position:absolute;top:14px;right:14px;display:grid;place-items:center;width:34px;height:34px;border:0;border-radius:50%;background:#eef3e9;color:#49623c}
 .booking-summary-modal>h3{padding-right:38px}
 @media(max-width:680px){
