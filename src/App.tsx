@@ -292,16 +292,30 @@ function BookingPage() {
    setSelected({1:[],2:[]})
    if(!supabase){setStatuses({1:{},2:{}});return}
    let active=true
+   let refreshTimer:number|undefined
+   let refreshing=false
+   let refreshRequested=false
    const refresh=async()=>{
-     const results=await Promise.all([1,2].map(court=>supabase!.rpc('get_slot_availability',{p_court_id:court,p_booking_date:date})))
-     if(!active)return
-     const next:Record<number,Record<number,string>>={1:{},2:{}}
-     results.forEach((result,index)=>{if(!result.error)next[index+1]=Object.fromEntries((result.data||[]).map((row:{hour:number;slot_status:string})=>[row.hour,row.slot_status]))})
-     setStatuses(next)
+     if(refreshing){refreshRequested=true;return}
+     refreshing=true
+     try{
+       const results=await Promise.all([1,2].map(court=>supabase!.rpc('get_slot_availability',{p_court_id:court,p_booking_date:date})))
+       if(!active)return
+       const next:Record<number,Record<number,string>>={1:{},2:{}}
+       results.forEach((result,index)=>{if(!result.error)next[index+1]=Object.fromEntries((result.data||[]).map((row:{hour:number;slot_status:string})=>[row.hour,row.slot_status]))})
+       setStatuses(next)
+     }finally{
+       refreshing=false
+       if(active&&refreshRequested){refreshRequested=false;window.setTimeout(()=>void refresh(),0)}
+     }
    }
+   const scheduleRefresh=()=>{if(refreshTimer!==undefined)window.clearTimeout(refreshTimer);refreshTimer=window.setTimeout(()=>void refresh(),200)}
+   const channel=supabase.channel(`customer-availability-${date}`)
+     .on('postgres_changes',{event:'*',schema:'public',table:'availability_signals',filter:`booking_date=eq.${date}`},scheduleRefresh)
+     .subscribe(status=>{if(status==='SUBSCRIBED')void refresh()})
    void refresh()
    const timer=window.setInterval(()=>void refresh(),15000)
-   return()=>{active=false;window.clearInterval(timer)}
+   return()=>{active=false;window.clearInterval(timer);if(refreshTimer!==undefined)window.clearTimeout(refreshTimer);void supabase!.removeChannel(channel)}
  },[date])
 
  function selectSlot(court:number,hour:number){setError('');setSelected(current=>({...current,[court]:current[court].includes(hour)?current[court].filter(value=>value!==hour):[...current[court],hour].sort((a,b)=>a-b)}))}
