@@ -113,8 +113,8 @@
 .availability-time-label{display:flex;align-items:center;color:#26382c;font:800 10px/1.35 Manrope,'DM Sans',sans-serif;white-space:nowrap}
 .availability-slot{min-height:42px;display:grid;place-content:center;gap:3px;border:1px solid #d9e9bd;border-radius:7px;background:#f1f8e3;color:#46672b;font-size:11px;font-weight:600}
 .availability-slot small{font-size:9px;font-weight:500}
-.availability-slot:hover:not(:disabled){border-color:#84a851;background:#e8f3d4}
 .availability-slot.selected{border-color:#304a32;background:#304a32;color:#fff}
+@media(hover:hover) and (pointer:fine){.availability-slot:hover:not(:disabled):not(.selected){border-color:#84a851;background:#e8f3d4}}
 .availability-slot.unavailable,.availability-slot:disabled{border-color:#e5e8ea;background:#eef0f1;color:#89919a;cursor:not-allowed}
 .availability-legend{display:flex;flex-wrap:wrap;gap:14px;padding:12px 20px;color:#758091;font-size:9px}
 .availability-legend span{display:flex;align-items:center;gap:6px}
