@@ -665,6 +665,11 @@ html.customer-side-active #root{position:relative;isolation:isolate}
 .court-photo-shade{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,#101b1680 0%,transparent 42%,#101b1655 100%);pointer-events:none}
 .court-number-large,.court-pill{z-index:2}
 .admin-booking-player-contact{display:grid;gap:3px;margin-top:5px;color:#737b74;font-size:11px;line-height:1.35;overflow-wrap:anywhere}
+.admin-search-results{margin-top:18px;padding:18px;background:#fff;border:1px solid var(--line);border-radius:12px}
+.admin-search-results-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.admin-search-results-heading h3{margin:0;font:700 17px Manrope,sans-serif}
+.admin-search-results-heading>span{color:var(--muted);font-size:12px}
+.has-booking-search>.admin-day-schedules,.has-booking-search>.admin-court-schedule,.has-booking-search>.report-strip{display:none}
 
 /* Stronger ambient customer backdrop, kept behind all page content */
 html.customer-side-active{background-image:radial-gradient(ellipse at 8% 15%,#c8f36b3d 0,transparent 33%),radial-gradient(ellipse at 92% 78%,#749c3e28 0,transparent 36%),radial-gradient(circle at 1px 1px,#17312412 1px,transparent 1.5px),linear-gradient(135deg,transparent 49.8%,#749c3e08 50%,transparent 50.2%);background-size:185% 185%,175% 175%,34px 34px,76px 76px;animation:none}
