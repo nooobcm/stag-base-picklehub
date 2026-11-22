@@ -670,6 +670,54 @@ html.customer-side-active #root{position:relative;isolation:isolate}
 .admin-search-results-heading h3{margin:0;font:700 17px Manrope,sans-serif}
 .admin-search-results-heading>span{color:var(--muted);font-size:12px}
 .has-booking-search>.admin-day-schedules,.has-booking-search>.admin-court-schedule,.has-booking-search>.report-strip{display:none}
+.admin-time-adjustment{margin:14px 0;padding:14px;border:1px solid #d7dce3;border-radius:12px;background:#fff}
+.admin-time-adjustment-heading,.admin-time-adjustment-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.admin-time-adjustment-heading{margin-bottom:10px}
+.admin-time-adjustment-heading h3{margin:0 0 3px;font-size:15px}
+.admin-time-adjustment-heading p,.admin-time-adjustment-row span{margin:0;color:var(--muted);font-size:12px}
+.admin-time-adjustment-heading>b{font-size:17px;white-space:nowrap}
+.admin-time-adjustment-row{padding:9px 0;border-top:1px solid var(--line)}
+.admin-time-adjustment-row>div:first-child{display:grid;gap:3px;min-width:0}
+.admin-time-adjustment-row>div:first-child>b{font-size:13px}
+.admin-time-adjustment-controls{display:flex;align-items:center;gap:9px;white-space:nowrap}
+.admin-time-adjustment-controls button{width:29px;height:29px;border:1px solid var(--line);border-radius:8px;background:#f7f8f5;color:var(--dark);font-size:18px;line-height:1}
+.admin-time-adjustment-controls button:disabled{opacity:.4;cursor:not-allowed}
+.admin-time-save{width:100%;margin-top:10px}
+.admin-time-adjustment-error,.admin-time-adjustment-success{margin:8px 0 0;font-size:12px}
+.admin-time-adjustment-error{color:#a0473d}.admin-time-adjustment-success{color:#4b7834}
+.admin-time-picker-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin:10px 0;color:var(--muted);font-size:10px}
+.admin-time-picker-legend span{display:flex;align-items:center;gap:5px}
+.admin-time-picker-legend i{width:9px;height:9px;border-radius:50%;background:#9bc95e}
+.admin-time-picker-legend i.selected{background:#173124}.admin-time-picker-legend i.occupied{background:#d8665e}.admin-time-picker-legend i.maintenance{background:#9da4aa}
+.admin-time-picker-court{padding:11px 0;border-top:1px solid var(--line)}
+.admin-time-picker-court-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.admin-time-picker-court-heading>b{font-size:13px}.admin-time-picker-court-heading>span{color:var(--muted);font-size:11px;text-align:right}
+.admin-time-picker-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.admin-time-picker-slot{display:grid;gap:3px;min-width:0;padding:8px 4px;border:1px solid #dce4d6;border-radius:8px;background:#f3f8e9;color:#3f6031;text-align:center;transition:background .15s,border-color .15s,transform .15s}
+.admin-time-picker-slot b{font-size:10px;white-space:nowrap}.admin-time-picker-slot span{font-size:9px;color:var(--muted)}
+.admin-time-picker-slot:hover:not(:disabled){transform:translateY(-1px);border-color:#9bbd68}
+.admin-time-picker-slot.selected{border-color:#173124;background:#173124;color:#fff}.admin-time-picker-slot.selected span{color:#d4e8b7}
+.admin-time-picker-slot.occupied,.admin-time-picker-slot.maintenance{border-color:#e1e4e3;background:#eef0f0;color:#8a9190;cursor:not-allowed;opacity:.85}
+.admin-time-picker-slot.occupied span{color:#a64b46}.admin-time-picker-slot.maintenance span{color:#767d82}
+.admin-time-picker-slot:disabled{cursor:not-allowed}
+@media(max-width:680px){.admin-time-picker-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.admin-time-picker-slot{padding:7px 2px}.admin-time-picker-slot b{font-size:9px}}
+.admin-time-open-button{justify-self:start;margin-top:4px;padding:5px 9px;border:1px solid #ceddbf;border-radius:7px;background:#f4f8eb;color:#456637;font-size:10px;font-weight:700}
+.admin-time-open-button:hover{background:#e9f3d7;border-color:#a9c681}
+.admin-time-picker-backdrop{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:20px;background:#15231dcc;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.admin-time-picker-modal{position:relative;width:min(820px,100%);max-height:min(88vh,780px);overflow:auto;margin:0;padding:24px 22px;background:#fff;border-color:#d7dce3;box-shadow:0 22px 70px #0004;overscroll-behavior:contain}
+.admin-time-picker-modal .admin-time-adjustment-heading{padding-right:36px}
+.admin-time-picker-modal .admin-time-adjustment-heading h3{margin:0 0 4px;font-size:21px}
+.admin-time-picker-modal .admin-time-adjustment-heading p{max-width:610px;font-size:14px;line-height:1.45}
+.admin-time-picker-modal .admin-time-adjustment-heading>b{font-size:24px}
+.admin-time-picker-modal .admin-time-picker-legend{font-size:12px;margin:15px 0}
+.admin-time-picker-modal .admin-time-picker-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.admin-time-picker-modal .admin-time-picker-slot{min-height:66px;padding:9px 5px}
+.admin-time-picker-modal .admin-time-picker-slot b{font-size:12px}
+.admin-time-picker-modal .admin-time-picker-slot span{font-size:11px}
+@media(max-width:680px){.admin-time-picker-backdrop{padding:12px}.admin-time-picker-modal{width:100%;max-height:88dvh;padding:19px 14px}.admin-time-picker-modal .admin-time-adjustment-heading{align-items:flex-start;gap:8px}.admin-time-picker-modal .admin-time-adjustment-heading h3{font-size:18px}.admin-time-picker-modal .admin-time-adjustment-heading p{font-size:12px}.admin-time-picker-modal .admin-time-adjustment-heading>b{font-size:20px}.admin-time-picker-modal .admin-time-picker-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.admin-time-picker-modal .admin-time-picker-slot{min-height:58px;padding:7px 3px}.admin-time-picker-modal .admin-time-picker-slot b{font-size:10px}.admin-time-picker-modal .admin-time-picker-slot span{font-size:9px}}
+.admin-modal-backdrop:has(.admin-booking-payment-modal){display:grid!important;place-items:center!important;overflow:hidden!important;overscroll-behavior:contain;padding:40px 16px!important}
+.admin-booking-payment-modal{box-sizing:border-box;width:min(500px,100%)!important;height:min(68dvh,500px)!important;max-height:calc(100dvh - 160px)!important;min-height:0!important;margin:0!important;padding:20px;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-gutter:stable}
+@media(max-width:680px){.admin-modal-backdrop:has(.admin-booking-payment-modal){padding:max(16px,env(safe-area-inset-top)) 8px max(16px,env(safe-area-inset-bottom))!important}.admin-booking-payment-modal{width:min(100%,520px)!important;height:78dvh!important;max-height:calc(100dvh - 48px)!important;margin:0!important;padding:16px 13px}}
 
 /* Stronger ambient customer backdrop, kept behind all page content */
 html.customer-side-active{background-image:radial-gradient(ellipse at 8% 15%,#c8f36b3d 0,transparent 33%),radial-gradient(ellipse at 92% 78%,#749c3e28 0,transparent 36%),radial-gradient(circle at 1px 1px,#17312412 1px,transparent 1.5px),linear-gradient(135deg,transparent 49.8%,#749c3e08 50%,transparent 50.2%);background-size:185% 185%,175% 175%,34px 34px,76px 76px;animation:none}
