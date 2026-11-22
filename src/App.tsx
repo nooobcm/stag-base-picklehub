@@ -321,7 +321,7 @@ function BookingPage() {
      try{
        const startOfDay=new Date(`${date}T00:00:00+08:00`)
        const endOfDay=new Date(startOfDay.getTime()+86400000)
-       const [results,blocksResult]=await Promise.all([Promise.all([1,2].map(court=>supabase!.rpc('get_slot_availability',{p_court_id:court,p_booking_date:date}))),supabase.from('court_closures').select('court_id,starts_at,ends_at,reason').lt('starts_at',endOfDay.toISOString()).gt('ends_at',startOfDay.toISOString())])
+       const [results,blocksResult]=await Promise.all([Promise.all([1,2].map(court=>supabase!.rpc('get_slot_availability',{p_court_id:court,p_booking_date:date}))),supabase!.from('court_closures').select('court_id,starts_at,ends_at,reason').lt('starts_at',endOfDay.toISOString()).gt('ends_at',startOfDay.toISOString())])
        if(!active)return
        const next:Record<number,Record<number,string>>={1:{},2:{}}
        const nextReasons:Record<number,Record<number,string>>={1:{},2:{}}
