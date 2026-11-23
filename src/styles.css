@@ -122,6 +122,7 @@
 .availability-slot.booked,.availability-slot.booked:disabled{border-color:#f0b7b5;background:#fbe8e7;color:#a52e2b;cursor:not-allowed}
 .availability-slot.pending,.availability-slot.pending:disabled{border-color:#a9c9ed;background:#e7f1fc;color:#245b91;cursor:not-allowed}
 .availability-slot.maintenance,.availability-slot.maintenance:disabled,.availability-slot.unavailable,.availability-slot.unavailable:disabled{border-color:#d8dcdf;background:#e9ebed;color:#707982;cursor:not-allowed}
+.availability-slot.past-available .booking-hour-time{text-decoration:line-through;text-decoration-thickness:1px}
 .availability-legend .legend-available{background:#9ac45a}
 .availability-legend .legend-booked{background:#d75b55}
 .availability-legend .legend-pending{background:#4f91d2}
@@ -882,12 +883,14 @@ body.report-print-mode .admin-dashboard-page>*:not(.admin-reports){display:none!
 @media(max-width:680px){.admin-day-schedules{padding:12px;margin:12px 0 18px}.admin-timeline-header{gap:10px;padding-bottom:10px}.admin-timeline-date b{font-size:15px}.admin-day-schedule-courts>.admin-day-schedule{padding:13px 0}.admin-day-schedule-courts .admin-day-schedule-heading{gap:7px}}
 .admin-shared-timeline{display:grid;grid-template-columns:160px repeat(2,minmax(0,1fr));grid-template-rows:auto repeat(17,minmax(48px,auto));column-gap:10px;row-gap:8px;margin-top:14px}
 .admin-shared-timeline-head{grid-column:1/-1;grid-row:1;display:grid;grid-template-columns:subgrid;align-items:stretch;padding:0 0 9px;border-bottom:1px solid #e8ece5}
-.admin-shared-timeline-head>b{display:flex;align-items:center;gap:5px;min-height:40px;padding:7px 12px;border:1px solid #e1e8d9;border-radius:8px;background:#f5f8ef;color:#315032;font-size:12px;letter-spacing:.04em}
+.admin-shared-timeline-head>b{display:flex;align-items:center;justify-content:center;gap:5px;min-height:40px;padding:7px 12px;border:1px solid #e1e8d9;border-radius:8px;background:#f5f8ef;color:#315032;font-size:12px;letter-spacing:.04em;text-align:center}
 .admin-shared-timeline-head>b small{color:#778473;font-size:11px;font-weight:600;letter-spacing:0}
-.admin-shared-timeline-head>span{align-self:center;color:#7b8579;font-size:10px;font-weight:700;letter-spacing:.12em}
-.admin-shared-time{align-self:center;color:#26382c;font:750 12px/1.35 Manrope,'DM Sans',sans-serif}
+.admin-shared-timeline-head>span{align-self:center;justify-self:center;color:#7b8579;font-size:10px;font-weight:700;letter-spacing:.12em;text-align:center}
+.admin-shared-time{align-self:center;color:#26382c;font:750 12px/1.35 Manrope,'DM Sans',sans-serif;text-align:center}
 .admin-shared-time .timeline-time-compact{display:none}
 .admin-shared-slot{display:flex;flex-direction:column;justify-content:center;gap:3px;min-height:48px;padding:6px 8px;border-radius:7px;text-align:center;font-size:12px;line-height:1.25}
 .admin-shared-slot .schedule-hour-customer{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .admin-shared-slot .schedule-hour-details{padding:2px 6px;border:0;border-radius:4px;background:transparent;color:inherit;font-size:9px;font-weight:700}
+.schedule-hour.done{background:#e9ebed;color:#707982}
+.schedule-hour-done-label{font-size:10px;font-weight:700;line-height:1.2}
 @media(max-width:680px){.admin-shared-timeline{grid-template-columns:minmax(74px,.62fr) repeat(2,minmax(0,1fr));grid-template-rows:auto repeat(17,minmax(46px,auto));column-gap:5px;row-gap:5px;margin-top:10px}.admin-shared-timeline-head{grid-template-columns:subgrid;padding-bottom:7px}.admin-shared-timeline-head>b{flex-direction:column;justify-content:center;gap:2px;min-height:42px;padding:5px 3px;font-size:10px}.admin-shared-timeline-head>b small{font-size:9px}.admin-shared-timeline-head>span{font-size:8px}.admin-shared-time{font-size:10px}.admin-shared-time .timeline-time-wide{display:none}.admin-shared-time .timeline-time-compact{display:inline}.admin-shared-slot{min-height:46px;padding:5px 3px;font-size:10px}.admin-shared-slot .schedule-hour-customer{font-size:9px}.admin-shared-slot .schedule-hour-details{font-size:8px}}
