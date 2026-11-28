@@ -13,6 +13,7 @@ export const supabase = url && key ? createClient(url, key, {
 export type Booking = {
   id: string; reference: string; user_id: string; court_id: number; booking_date: string
   start_hour: number; duration_hours: number; total_price: number; status: string
+  paddle_count?: number; paddle_fee?: number
   payment_status: string; created_at: string; hold_expires_at?: string | null
   payment_method?: 'cash' | 'online' | string | null
   selected_hours?: number[] | null

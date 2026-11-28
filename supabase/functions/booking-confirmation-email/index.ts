@@ -36,7 +36,7 @@ Deno.serve(async request => {
   const { booking_id } = await request.json()
   if (!booking_id) return Response.json({ error: 'Booking id is required.' }, { status: 400, headers: cors })
   const { data: booking, error: bookingError } = await db.from('bookings')
-    .select('id,reference,court_id,court_selections,booking_date,start_hour,duration_hours,selected_hours,total_price,status,payment_status,payment_method,customer_name,customer_email,confirmation_email_sent_at,profiles(full_name,email)')
+    .select('id,reference,court_id,court_selections,booking_date,start_hour,duration_hours,selected_hours,total_price,paddle_count,paddle_fee,status,payment_status,payment_method,customer_name,customer_email,confirmation_email_sent_at,profiles(full_name,email)')
     .eq('id', booking_id).single()
   if (bookingError || !booking) return Response.json({ error: 'Booking not found.' }, { status: 404, headers: cors })
   if (booking.status !== 'confirmed') {
@@ -65,6 +65,13 @@ Deno.serve(async request => {
     return intervals.map(hours => `${timeLabel(hours[0])} – ${timeLabel(hours.at(-1)! + 1)}`).join(', ')
   }
   const bookingTime = selections.map(selection => `${selection.court_id === 1 ? 'The Basic · Court 1' : 'The Pro · Court 2'}: ${formatRanges(selection.hours)}`).join('\n')
+  const rentalHours = new Set(selections.flatMap(selection => selection.hours)).size
+  const paddleSummaryHtml = Number(booking.paddle_count || 0) > 0
+    ? `<p><b>Paddle rental:</b> ${Number(booking.paddle_count)} paddle${Number(booking.paddle_count) === 1 ? '' : 's'} · ${rentalHours} hour${rentalHours === 1 ? '' : 's'} · ₱${Number(booking.paddle_fee || 0).toLocaleString('en-PH')}</p>`
+    : ''
+  const paddleSummaryText = Number(booking.paddle_count || 0) > 0
+    ? `Paddle rental: ${Number(booking.paddle_count)} paddle${Number(booking.paddle_count) === 1 ? '' : 's'} · ${rentalHours} hour${rentalHours === 1 ? '' : 's'} · ₱${Number(booking.paddle_fee || 0).toLocaleString('en-PH')}`
+    : ''
   const dateLabel = start.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
   const safeName = escapeHtml(customerName)
   const safeReference = escapeHtml(booking.reference)
@@ -105,8 +112,8 @@ Deno.serve(async request => {
     headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json', 'Idempotency-Key': `booking-confirmation-${booking.id}` },
     body: JSON.stringify({
       from, to: [recipient], subject: `Court booking confirmed · ${booking.reference}`,
-      html: `<div style="font-family:Arial,sans-serif;color:#203529;max-width:560px;margin:auto"><h1>Your court is confirmed!</h1><p>${introHtml}</p><div style="padding:18px;background:#f0f4e9;border-radius:8px"><p><b>Booking reference:</b> ${safeReference}</p><p><b>Court(s):</b> ${safeCourt}</p><p><b>Date:</b> ${safeDate}</p><p><b>Time:</b><br>${safeTime.replaceAll('\n','<br>')}</p><p><b>Total reserved court hours:</b> ${selections.reduce((sum,selection)=>sum+selection.hours.length,0)}</p>${paymentHtml}</div><p>We look forward to seeing you at Stag Base Pickle Hub.</p></div>`,
-      text: `Your court is confirmed!\n\n${introText}\n\nBooking reference: ${booking.reference}\nCourt(s): ${courtName}\nDate: ${dateLabel}\nTime:\n${bookingTime}\nTotal reserved court hours: ${selections.reduce((sum,selection)=>sum+selection.hours.length,0)}\n${paymentText}\n\nWe look forward to seeing you at Stag Base Pickle Hub.`,
+      html: `<div style="font-family:Arial,sans-serif;color:#203529;max-width:560px;margin:auto"><h1>Your court is confirmed!</h1><p>${introHtml}</p><div style="padding:18px;background:#f0f4e9;border-radius:8px"><p><b>Booking reference:</b> ${safeReference}</p><p><b>Court(s):</b> ${safeCourt}</p><p><b>Date:</b> ${safeDate}</p><p><b>Time:</b><br>${safeTime.replaceAll('\n','<br>')}</p><p><b>Total reserved court hours:</b> ${selections.reduce((sum,selection)=>sum+selection.hours.length,0)}</p>${paddleSummaryHtml}${paymentHtml}</div><p>We look forward to seeing you at Stag Base Pickle Hub.</p></div>`,
+      text: `Your court is confirmed!\n\n${introText}\n\nBooking reference: ${booking.reference}\nCourt(s): ${courtName}\nDate: ${dateLabel}\nTime:\n${bookingTime}\nTotal reserved court hours: ${selections.reduce((sum,selection)=>sum+selection.hours.length,0)}\n${paddleSummaryText ? `${paddleSummaryText}\n` : ''}${paymentText}\n\nWe look forward to seeing you at Stag Base Pickle Hub.`,
     }),
   })
   if (!response.ok) {
